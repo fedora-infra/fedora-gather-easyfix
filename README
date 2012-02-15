@@ -1,0 +1,23 @@
+fedora-gather-easyfix
+=====================
+
+
+The idea of this program is to gather tickets from different project
+which are marked as 'easyfix' (or any other keyword for that matter).
+
+This version is a simple proof of concept, eventually it should be
+converted to an html page and this script run by a cron job of some sort.
+
+The different project to suscribe by email or a git repo or a page on
+the wiki. To be sorted out...
+
+
+In order for a trac to be added there are some requirements:
+- Enable the XMLRPC plugin via the plugin page of the trac admin
+  interface
+  You will need to enable:
+   - all the    tracrpc.ticket.*
+   - the entry  tracrpc.xml_rpc.*
+- Add XML_RPC to the anonymous user in the permission page of the
+  admin interface
+
