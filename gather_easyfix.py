@@ -56,9 +56,10 @@ def main():
             PROJECTS[project]):
             info = ticket[3]
             print """#%s  - %s
-   status: %s - type: %s
+   status: %s - type: %s - component: %s
    https://fedorahosted.org/%s/ticket/%s""" %( ticket[0],info['summary'],
-            info['status'], info['type'], project, ticket[0])
+            info['status'], info['type'], info['component'], project,
+            ticket[0])
         print ''
 
 
