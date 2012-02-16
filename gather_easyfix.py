@@ -26,12 +26,61 @@ The different project to suscribe by email or a git repo or a page on
 the wiki. To be sorted out...
 """
 
+import re
+import fedora.client
 import xmlrpclib
 
-PROJECTS = { 'fedora-infrastructure' : 'easyfix',
-            'tgcaptcha2' : 'easyfix',
-            'fas' : 'easyfix',
-          }
+
+class MediaWiki(fedora.client.Wiki):
+    """ Mediawiki class.
+    Handles interaction with the Mediawiki.
+    Code stollen from cnucnu:
+    http://fedorapeople.org/gitweb?p=till/public_git/cnucnu.git;a=summary
+    """
+
+    def __init__(self, base_url='https://fedoraproject.org/w/', *args, **kw):
+        """ Instanciate a Mediawiki client.
+        """
+        super(MediaWiki, self).__init__(base_url, *args, **kw)
+
+    def json_request(self, method="api.php", req_params=None, auth=False, **kwargs):
+        """ Perform a json request to retrieve the content of a page.
+        """
+        if req_params:
+            req_params["format"] = "json"
+
+        data =  self.send_request(method, req_params, auth, **kwargs)
+
+        if 'error' in data:
+            raise Exception(data['error']['info'])
+        return data
+
+    def get_pagesource(self, titles):
+        """ Retrieve the content of a given page from Mediawiki.
+        :arg titles, the title of the page to return
+        """
+        data = self.json_request(req_params={
+                'action' : 'query',
+                'titles' : titles,
+                'prop'   : 'revisions',
+                'rvprop' : 'content'
+                }
+                )
+        return data['query']['pages'].popitem()[1]['revisions'][0]['*']
+
+
+def gather_project():
+    """ Retrieve all the projects which have subscribe to this idea.
+    """
+    wiki = MediaWiki(base_url='https://fedoraproject.org/w/')
+    page = wiki.get_pagesource("User:Pingou/easyfix")
+    projects = {}
+    for row in page.split('\n'):
+        regex = re.search(' \* (\w*) (\w*)( \w*)?', row)
+        if regex:
+            projects[regex.group(1)] = (regex.group(2), regex.group(3))
+    return projects
+
 
 def get_open_tickets_for_keyword(project, keyword):
     tickets = []
@@ -50,16 +99,18 @@ def main():
     """ For each project defined in PROJECTS, gather the tickets
     containing the provided keyword.
     """
-    for project in PROJECTS.keys():
+    projects = gather_project()
+    for project in projects.keys():
         print 'Project: %s' % project
         for ticket in get_open_tickets_for_keyword(project,
-            PROJECTS[project]):
+            projects[project][0]):
             info = ticket[3]
             print """#%s  - %s
    status: %s - type: %s - component: %s
-   https://fedorahosted.org/%s/ticket/%s""" %( ticket[0],info['summary'],
+   https://fedorahosted.org/%s/ticket/%s
+   Contact person: %s@fedoraproject.org""" %( ticket[0],info['summary'],
             info['status'], info['type'], info['component'], project,
-            ticket[0])
+            ticket[0], projects[project][1])
         print ''
 
 
