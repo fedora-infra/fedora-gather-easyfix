@@ -80,7 +80,7 @@ def gather_project():
     page = wiki.get_pagesource("User:Pingou/easyfix")
     projects = {}
     for row in page.split('\n'):
-        regex = re.search(' \* (\w*) (\w*)( \w*)?', row)
+        regex = re.search(' \* ([^ ]*) ([^ ]*)( [^ ]*)?', row)
         if regex:
             projects[regex.group(1)] = {'name' : regex.group(1),
                                         'tag' : regex.group(2),
@@ -107,7 +107,8 @@ def main():
     """
     projects = gather_project()
     for project in projects.keys():
-        #print 'Project: %s' % project
+        print 'Project: %s' % project
+        #print projects[project]
         tickets = []
         for ticket in get_open_tickets_for_keyword(project,
             projects[project]['tag']):
