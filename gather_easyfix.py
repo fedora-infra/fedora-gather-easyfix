@@ -26,6 +26,7 @@ The different project to suscribe by email or a git repo or a page on
 the wiki. To be sorted out...
 """
 
+import datetime
 import os
 import re
 import fedora.client
@@ -137,7 +138,8 @@ def main():
         stream.close()
         # Fill the template
         mytemplate = Template(tplfile)
-        html = mytemplate.render(projects=projects)
+        html = mytemplate.render(projects=projects,
+            date=datetime.datetime.now().strftime("%a %b %d %Y %H:%M"))
         # Write down the page
         stream = open('easyfix.html', 'w')
         stream.write(html)
