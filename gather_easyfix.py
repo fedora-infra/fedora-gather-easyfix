@@ -26,9 +26,12 @@ The different project to suscribe by email or a git repo or a page on
 the wiki. To be sorted out...
 """
 
+import os
 import re
 import fedora.client
 import xmlrpclib
+# Let's import template stuff
+from jinja2 import Template
 
 
 class MediaWiki(fedora.client.Wiki):
@@ -78,7 +81,9 @@ def gather_project():
     for row in page.split('\n'):
         regex = re.search(' \* (\w*) (\w*)( \w*)?', row)
         if regex:
-            projects[regex.group(1)] = (regex.group(2), regex.group(3))
+            projects[regex.group(1)] = {'name' : regex.group(1),
+                                        'tag' : regex.group(2),
+                                        'owner' : regex.group(3)}
     return projects
 
 
@@ -101,17 +106,44 @@ def main():
     """
     projects = gather_project()
     for project in projects.keys():
-        print 'Project: %s' % project
+        #print 'Project: %s' % project
+        tickets = []
         for ticket in get_open_tickets_for_keyword(project,
-            projects[project][0]):
-            info = ticket[3]
-            print """#%s  - %s
-   status: %s - type: %s - component: %s
-   https://fedorahosted.org/%s/ticket/%s
-   Contact person: %s@fedoraproject.org""" %( ticket[0],info['summary'],
-            info['status'], info['type'], info['component'], project,
-            ticket[0], projects[project][1])
-        print ''
+            projects[project]['tag']):
+            ticket_info = { 'id' : ticket[0] }
+            for key in ticket[3].keys():
+                ticket_info[key] = ticket[3][key]
+            tickets.append(ticket_info)
+        projects[project]['tickets'] = tickets
+
+        #for ticket in projects[project]['tickets']:
+            #print """#%s  - %s
+   #status: %s - type: %s - component: %s
+   #https://fedorahosted.org/%s/ticket/%s
+   #Contact person: %s@fedoraproject.org""" %( ticket['id'], ticket['summary'],
+            #ticket['status'], ticket['type'], ticket['component'],
+            #projects[project]['name'], ticket['id'],
+            #projects[project]['owner'])
+        #print ''
+
+    folder = os.path.dirname(__file__)
+    if not folder:
+        folder = '.'
+    template = '%s/template.html' % folder
+    try:
+        # Read in template
+        stream = open(template, 'r')
+        tplfile = stream.read()
+        stream.close()
+        # Fill the template
+        mytemplate = Template(tplfile)
+        html = mytemplate.render(projects=projects)
+        # Write down the page
+        stream = open('easyfix.html', 'w')
+        stream.write(html)
+        stream.close()
+    except IOError, err:
+        print 'ERROR: %s' % err
 
 
 if __name__ == '__main__':
