@@ -21,6 +21,15 @@ In order for a trac to be added there are some requirements:
 - Add XML_RPC to the anonymous user in the permission page of the
   admin interface
 
+
+Join fedora-gather-easyfix
+===========================
+To join the project:
+- Enable XML RPC on your trac instance of fedorahosted (see above where and how)
+- Add your information on https://fedoraproject.org/wiki/User:Pingou/easyfix 
+
+
+
 Dependencies:
 -------------
  - python
