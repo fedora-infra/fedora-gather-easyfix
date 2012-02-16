@@ -18,8 +18,10 @@ In order for a trac to be added there are some requirements:
   You will need to enable:
    - all the    tracrpc.ticket.*
    - the entry  tracrpc.xml_rpc.*
+   - the entry  tracrpc.web_ui.*
 - Add XML_RPC to the anonymous user in the permission page of the
-  admin interface
+  admin interface (for this you will need to activate the entry 
+  tracrpc.api.* temporarily)
 
 
 Join fedora-gather-easyfix
