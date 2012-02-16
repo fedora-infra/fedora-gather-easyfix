@@ -5,12 +5,12 @@ fedora-gather-easyfix
 The idea of this program is to gather tickets from different project
 which are marked as 'easyfix' (or any other keyword for that matter).
 
-This version is a simple proof of concept, eventually it should be
-converted to an html page and this script run by a cron job of some sort.
-
-The different project to suscribe by email or a git repo or a page on
-the wiki. To be sorted out...
-
+The script retrieve the list of participating project from:
+https://fedoraproject.org/wiki/User:Pingou/easyfix (this should change
+at some point) and generates a HTML page in the directory where it's
+run.
+It should probably be integrated within a cron job to be made
+accessible.
 
 In order for a trac to be added there are some requirements:
 - Enable the XMLRPC plugin via the plugin page of the trac admin
