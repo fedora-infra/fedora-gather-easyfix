@@ -105,6 +105,14 @@ def main():
     """ For each project defined in PROJECTS, gather the tickets
     containing the provided keyword.
     """
+
+    template = '/etc/fedora-gather-easyfix/template.html'
+    if not os.path.exists(template):
+        template = './template.html'
+    if not os.path.exists(template):
+        print 'No template found'
+        return 1
+
     projects = gather_project()
     for project in projects.keys():
         print 'Project: %s' % project
@@ -128,10 +136,6 @@ def main():
             #projects[project]['owner'])
         #print ''
 
-    folder = os.path.dirname(__file__)
-    if not folder:
-        folder = '.'
-    template = '%s/template.html' % folder
     try:
         # Read in template
         stream = open(template, 'r')
