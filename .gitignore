@@ -3,3 +3,4 @@ easyfix.html
 build/
 dist/
 MANIFEST
+*.pyc
