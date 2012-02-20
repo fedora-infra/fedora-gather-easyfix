@@ -34,7 +34,7 @@ import xmlrpclib
 # Let's import template stuff
 from jinja2 import Template
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 
 class MediaWiki(fedora.client.Wiki):

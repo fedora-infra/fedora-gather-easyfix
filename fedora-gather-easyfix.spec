@@ -1,13 +1,16 @@
 Name:           fedora-gather-easyfix
-Version:        0.1.0
+Version:        0.1.1
 Release:        1%{?dist}
 Summary:        Gather easyfix tickets across fedorahosted projects
 
 License:        GPLv2+
 URL:            https://fedorahosted.org/fedora-gather-easyfix/
-Source0:        fedora-gather-easyfix-0.1.0.tar.gz
+Source0:        fedora-gather-easyfix-0.1.1.tar.gz
 BuildArch:      noarch
 
+BuildRequires:  python-fedora
+BuildRequires:  python-jinja2
+Requires:       python-fedora
 Requires:       python-jinja2
 
 %description
