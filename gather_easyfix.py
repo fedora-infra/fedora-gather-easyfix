@@ -42,18 +42,20 @@ class MediaWiki(fedora.client.Wiki):
     http://fedorapeople.org/gitweb?p=till/public_git/cnucnu.git;a=summary
     """
 
-    def __init__(self, base_url='https://fedoraproject.org/w/', *args, **kw):
+    def __init__(self, base_url='https://fedoraproject.org/w/', *args,
+        **kwargs):
         """ Instanciate a Mediawiki client.
         """
-        super(MediaWiki, self).__init__(base_url, *args, **kw)
+        super(MediaWiki, self).__init__(base_url, *args, **kwargs)
 
-    def json_request(self, method="api.php", req_params=None, auth=False, **kwargs):
+    def json_request(self, method="api.php", req_params=None,
+        auth=False, **kwargs):
         """ Perform a json request to retrieve the content of a page.
         """
         if req_params:
             req_params["format"] = "json"
 
-        data =  self.send_request(method, req_params, auth, **kwargs)
+        data = self.send_request(method, req_params, auth, **kwargs)
 
         if 'error' in data:
             raise Exception(data['error']['info'])
@@ -64,10 +66,10 @@ class MediaWiki(fedora.client.Wiki):
         :arg titles, the title of the page to return
         """
         data = self.json_request(req_params={
-                'action' : 'query',
-                'titles' : titles,
-                'prop'   : 'revisions',
-                'rvprop' : 'content'
+                'action': 'query',
+                'titles': titles,
+                'prop': 'revisions',
+                'rvprop': 'content'
                 }
                 )
         return data['query']['pages'].popitem()[1]['revisions'][0]['*']
@@ -82,17 +84,19 @@ def gather_project():
     for row in page.split('\n'):
         regex = re.search(' \* ([^ ]*) ([^ ]*)( [^ ]*)?', row)
         if regex:
-            projects[regex.group(1)] = {'name' : regex.group(1),
-                                        'tag' : regex.group(2),
-                                        'owner' : regex.group(3)}
+            projects[regex.group(1)] = {'name': regex.group(1),
+                                        'tag': regex.group(2),
+                                        'owner': regex.group(3)}
     return projects
 
 
 def get_open_tickets_for_keyword(project, keyword):
     tickets = []
     try:
-        server = xmlrpclib.ServerProxy('https://fedorahosted.org/%s/rpc' % project)
-        query = 'status=assigned&status=new&status=reopened&keywords=~%s' % keyword
+        server = xmlrpclib.ServerProxy(
+            'https://fedorahosted.org/%s/rpc' % project)
+        query = 'status=assigned&status=new&status=reopened&' \
+            'keywords=~%s' % keyword
         for ticket in server.ticket.query(query):
             tickets.append(server.ticket.get(ticket))
     except xmlrpclib.Error, err:
@@ -120,7 +124,7 @@ def main():
         tickets = []
         for ticket in get_open_tickets_for_keyword(project,
             projects[project]['tag']):
-            ticket_info = { 'id' : ticket[0] }
+            ticket_info = {'id': ticket[0]}
             for key in ticket[3].keys():
                 ticket_info[key] = ticket[3][key]
             tickets.append(ticket_info)
