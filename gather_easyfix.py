@@ -45,6 +45,7 @@ class MediaWiki(fedora.client.Wiki):
     def __init__(self, base_url='https://fedoraproject.org/w/', *args,
         **kwargs):
         """ Instanciate a Mediawiki client.
+        :arg base_url: base url of the mediawiki to query.
         """
         super(MediaWiki, self).__init__(base_url, *args, **kwargs)
 
@@ -76,7 +77,7 @@ class MediaWiki(fedora.client.Wiki):
 
 
 def gather_project():
-    """ Retrieve all the projects which have subscribe to this idea.
+    """ Retrieve all the projects which have subscribed to this idea.
     """
     wiki = MediaWiki(base_url='https://fedoraproject.org/w/')
     page = wiki.get_pagesource("User:Pingou/easyfix")
@@ -91,6 +92,12 @@ def gather_project():
 
 
 def get_open_tickets_for_keyword(project, keyword):
+    """ For a given project return the tickets ID which have the given
+    keyword attached.
+    :arg project, name of the project on fedorahosted.org
+    :arg keyword, search the trac for open tickets having this keyword
+    in the keywords field.
+    """
     tickets = []
     try:
         server = xmlrpclib.ServerProxy(
@@ -106,8 +113,9 @@ def get_open_tickets_for_keyword(project, keyword):
 
 
 def main():
-    """ For each project defined in PROJECTS, gather the tickets
-    containing the provided keyword.
+    """ For each projects which have suscribed in the correct place
+    (fedoraproject wiki page), gather all the tickets containing the
+    provided keyword.
     """
 
     template = '/etc/fedora-gather-easyfix/template.html'
