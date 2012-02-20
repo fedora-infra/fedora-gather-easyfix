@@ -126,16 +126,6 @@ def main():
             tickets.append(ticket_info)
         projects[project]['tickets'] = tickets
 
-        #for ticket in projects[project]['tickets']:
-            #print """#%s  - %s
-   #status: %s - type: %s - component: %s
-   #https://fedorahosted.org/%s/ticket/%s
-   #Contact person: %s@fedoraproject.org""" %( ticket['id'], ticket['summary'],
-            #ticket['status'], ticket['type'], ticket['component'],
-            #projects[project]['name'], ticket['id'],
-            #projects[project]['owner'])
-        #print ''
-
     try:
         # Read in template
         stream = open(template, 'r')
