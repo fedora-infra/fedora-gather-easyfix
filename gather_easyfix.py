@@ -82,7 +82,7 @@ def gather_project():
     """ Retrieve all the projects which have subscribed to this idea.
     """
     wiki = MediaWiki(base_url='https://fedoraproject.org/w/')
-    page = wiki.get_pagesource("User:Pingou/easyfix")
+    page = wiki.get_pagesource("Easyfix")
     projects = {}
     for row in page.split('\n'):
         regex = re.search(' \* ([^ ]*) ([^ ]*)( [^ ]*)?', row)
