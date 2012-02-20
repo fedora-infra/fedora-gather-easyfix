@@ -1,2 +1,5 @@
 easyfix.html
 *~
+build/
+dist/
+MANIFEST
