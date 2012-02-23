@@ -31,10 +31,12 @@ import os
 import re
 import fedora.client
 import xmlrpclib
+from bugzilla.rhbugzilla import RHBugzilla3
 # Let's import template stuff
 from jinja2 import Template
 
 __version__ = '0.1.1'
+bzclient = RHBugzilla3(url='https://bugzilla.redhat.com/xmlrpc.cgi')
 
 
 class MediaWiki(fedora.client.Wiki):
@@ -77,6 +79,18 @@ class MediaWiki(fedora.client.Wiki):
                 )
         return data['query']['pages'].popitem()[1]['revisions'][0]['*']
 
+def gather_bugzilla_easyfix():
+    """ From the Red Hat bugzilla, retrieve all new tickets flagged as
+    easyfix.
+    """
+    #keywords=easyfix&query_format=advanced&keywords_type=allwords&bug_status=NEW&classification=Fedora
+    bugbz = bzclient.query(
+         {'keywords': 'easyfix',
+         'keywords_type': 'allwords',
+         'bug_status': ['NEW'],
+         'classification': 'Fedora'})
+    print " {0} easyfix bugs retrieve from the BZ ".format(len(bugbz))
+    return bugbz
 
 def gather_project():
     """ Retrieve all the projects which have subscribed to this idea.
@@ -139,6 +153,8 @@ def main():
                 ticket_info[key] = ticket[3][key]
             tickets.append(ticket_info)
         projects[project]['tickets'] = tickets
+
+    easyfix_bz = gather_bugzilla_easyfix()
 
     try:
         # Read in template
