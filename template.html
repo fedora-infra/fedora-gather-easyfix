@@ -26,6 +26,16 @@
             }
         </style>
     <![endif]-->
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.8.17.custom.css" />
+    <script type="text/javascript" src="http://jqueryui.com/jquery-1.7.1.js" ></script>
+    <script type="text/javascript" src="http://jqueryui.com/ui/jquery.ui.core.js" ></script>
+    <script type="text/javascript" src="http://jqueryui.com/ui/jquery.ui.widget.js" ></script>
+    <script type="text/javascript" src="http://jqueryui.com/ui/jquery.ui.tabs.js" ></script>
+    <script>
+    $(function() {
+        $( "#tabs" ).tabs();
+    });
+    </script>
 
     <title>Fedora Project easyfix</title>
     </head>
@@ -35,8 +45,8 @@
             
 <div id="header">
     <div class="container_16">
-		<div class="grid_6 prefix_10">
-		</div>
+        <div class="grid_6 prefix_10">
+        </div>
         <div class="clear"></div>
         <div class="grid_9" id="site-heading">
             <h1><a href="/"><span id="logo">Fedora Project</span></a></h1>
@@ -91,22 +101,33 @@
                      wiki</a> for more information.
                     </p>
                 </div>
-                <div class="clear"></div>
-                {% for project in projects | dictsort %}
-                <div class="main-page-section" id="what-can-you-do">
-                    <h2><a name="{{ project[1]['name'] }}">{{ project[1]['name'] }}</a></h2>
-                    <p>
-                    To get started contact <a href="mailto:{{ project[1]['owner'] }}@fedoraproject.org">{{ project[1]['owner'] }}</a>
-                    </p>
-                    {% for ticket in project[1]['tickets']%}
-                    <p>
-                    <a href="https://fedorahosted.org/{{ project[1]['name'] }}/ticket/{{ ticket['id'] }}"> #{{ ticket['id'] }}</a>
-                    {{ ticket['summary'] }} <br />
-                    Status : {{ ticket['status'] }} - Type : {{ ticket['type'] }} - Component : {{ ticket['component'] }}
+                <div id="tabs">
+                    <ul>
+                        <li><a href="#tabs-1">Fedora hosted project</a></li>
+                        <li><a href="#tabs-2">Bugzilla</a></li>
+                    </ul>
+                    <div class="clear"></div>
+                    <div id="tabs-1">
+                    {% for project in projects | dictsort %}
+                    <div class="main-page-section">
+                        <h2><a name="{{ project[1]['name'] }}">{{ project[1]['name'] }}</a></h2>
+                        <p>
+                        To get started contact <a href="mailto:{{ project[1]['owner'] }}@fedoraproject.org">{{ project[1]['owner'] }}</a>
+                        </p>
+                        {% for ticket in project[1]['tickets']%}
+                        <p>
+                        <a href="https://fedorahosted.org/{{ project[1]['name'] }}/ticket/{{ ticket['id'] }}"> #{{ ticket['id'] }}</a>
+                        {{ ticket['summary'] }} <br />
+                        Status : {{ ticket['status'] }} - Type : {{ ticket['type'] }} - Component : {{ ticket['component'] }}
+                        {% endfor %}
+                        </p>
+                    </div>
                     {% endfor %}
-                    </p>
+                    </div>
+                    <div id="tabs-2">
+                    
+                    </div>
                 </div>
-                {% endfor %}
                <div class="clear"></div>
             </div>
             <!-- start sidebar -->
@@ -215,5 +236,6 @@
 
             </div>
         </div>
+
     </body>
 </html>
