@@ -83,7 +83,6 @@ def gather_bugzilla_easyfix():
     """ From the Red Hat bugzilla, retrieve all new tickets flagged as
     easyfix.
     """
-    #keywords=easyfix&query_format=advanced&keywords_type=allwords&bug_status=NEW&classification=Fedora
     bugbz = bzclient.query(
          {'keywords': 'easyfix',
          'keywords_type': 'allwords',
@@ -142,19 +141,21 @@ def main():
         return 1
 
     projects = gather_project()
+    ticket_num = 0
     for project in projects.keys():
         print 'Project: %s' % project
         #print projects[project]
         tickets = []
         for ticket in get_open_tickets_for_keyword(project,
             projects[project]['tag']):
+            ticket_num = ticket_num + 1
             ticket_info = {'id': ticket[0]}
             for key in ticket[3].keys():
                 ticket_info[key] = ticket[3][key]
             tickets.append(ticket_info)
         projects[project]['tickets'] = tickets
 
-    easyfix_bz = gather_bugzilla_easyfix()
+    bzbugs = gather_bugzilla_easyfix()
 
     try:
         # Read in template
@@ -163,7 +164,8 @@ def main():
         stream.close()
         # Fill the template
         mytemplate = Template(tplfile)
-        html = mytemplate.render(projects=projects,
+        html = mytemplate.render(projects=projects, bzbugs = bzbugs,
+            ticket_num=ticket_num, bzbugs_num=len(bzbugs),
             date=datetime.datetime.now().strftime("%a %b %d %Y %H:%M"))
         # Write down the page
         stream = open('easyfix.html', 'w')
