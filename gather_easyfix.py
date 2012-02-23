@@ -144,7 +144,6 @@ def main():
     ticket_num = 0
     for project in projects.keys():
         print 'Project: %s' % project
-        #print projects[project]
         tickets = []
         for ticket in get_open_tickets_for_keyword(project,
             projects[project]['tag']):
