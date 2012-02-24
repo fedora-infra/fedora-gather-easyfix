@@ -31,7 +31,7 @@
     <script type="text/javascript" src="jquery.ui.core.js" ></script>
     <script type="text/javascript" src="jquery.ui.widget.js" ></script>
     <script type="text/javascript" src="jquery.ui.tabs.js" ></script>
-    <script>
+    <script type="text/javascript">
     $(function() {
         $( "#tabs" ).tabs();
     });
@@ -119,8 +119,8 @@
                             <a href="https://fedorahosted.org/{{ project[1]['name'] }}/ticket/{{ ticket['id'] }}"> #{{ ticket['id'] }}</a>
                             {{ ticket['summary'] }} <br />
                             Status : {{ ticket['status'] }} - Type : {{ ticket['type'] }} - Component : {{ ticket['component'] }}
-                            {% endfor %}
                             </p>
+                            {% endfor %}
                         </div>
                         {% endfor %}
                         <p> Total: {{ticket_num}} tickets found </p>
