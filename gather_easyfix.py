@@ -168,7 +168,7 @@ def main():
             ticket_num=ticket_num, bzbugs_num=len(bzbugs),
             date=datetime.datetime.now().strftime("%a %b %d %Y %H:%M"))
         # Write down the page
-        stream = open('easyfix.html', 'w')
+        stream = open('index.html', 'w')
         stream.write(to_bytes(html))
         stream.close()
     except IOError, err:
