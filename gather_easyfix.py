@@ -29,9 +29,10 @@ the wiki. To be sorted out...
 import datetime
 import os
 import re
-import fedora.client
 import xmlrpclib
 from bugzilla.rhbugzilla import RHBugzilla3
+import fedora.client
+from kitchen.text.converters import to_bytes
 # Let's import template stuff
 from jinja2 import Template
 
@@ -168,7 +169,7 @@ def main():
             date=datetime.datetime.now().strftime("%a %b %d %Y %H:%M"))
         # Write down the page
         stream = open('easyfix.html', 'w')
-        stream.write(html)
+        stream.write(to_bytes(html))
         stream.close()
     except IOError, err:
         print 'ERROR: %s' % err
