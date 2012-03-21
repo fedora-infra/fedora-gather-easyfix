@@ -16,7 +16,11 @@ There are a number of project hosted on  fedorahosted.org which are participatin
 
 A new contributor can thus consult this page and find a place/task she/he would like to help with, contact the person in charge and get started.
 ''',
-    data_files = [('/etc/fedora-gather-easyfix/', [ 'template.html' ] ) ],
+    data_files = [('/etc/fedora-gather-easyfix/', [ 'template.html' ] ),
+            ('/usr/share/fedora-gather-easyfix/css/', ['css/jquery-ui-1.8.17.custom.css']),
+            ('/usr/share/fedora-gather-easyfix/js/', ['js/jquery-1.7.1.js',
+                        'js/jquery-1.7.1.min.js', 'js/jquery.ui.core.js', 'js/jquery.ui.tabs.js',
+								'js/jquery.ui.widget.js'])],
     version = __version__,
     author = 'Pierre-Yves Chibon',
     author_email = 'pingou@pingoured.fr',
