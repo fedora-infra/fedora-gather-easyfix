@@ -89,7 +89,7 @@ def gather_bugzilla_easyfix():
          'keywords_type': 'allwords',
          'bug_status': ['NEW'],
          'classification': 'Fedora'})
-    print " {0} easyfix bugs retrieve from the BZ ".format(len(bugbz))
+    #print " {0} easyfix bugs retrieve from the BZ ".format(len(bugbz))
     return bugbz
 
 def gather_project():
@@ -144,7 +144,7 @@ def main():
     projects = gather_project()
     ticket_num = 0
     for project in projects.keys():
-        print 'Project: %s' % project
+        #print 'Project: %s' % project
         tickets = []
         for ticket in get_open_tickets_for_keyword(project,
             projects[project]['tag']):
