@@ -30,14 +30,14 @@ import datetime
 import os
 import re
 import xmlrpclib
-from bugzilla.rhbugzilla import RHBugzilla3
+from bugzilla.rhbugzilla import RHBugzilla
 import fedora.client
 from kitchen.text.converters import to_bytes
 # Let's import template stuff
 from jinja2 import Template
 
 __version__ = '0.1.1'
-bzclient = RHBugzilla3(url='https://bugzilla.redhat.com/xmlrpc.cgi')
+bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi')
 
 
 class MediaWiki(fedora.client.Wiki):
