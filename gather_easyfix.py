@@ -27,6 +27,7 @@ the wiki. To be sorted out...
 """
 
 import datetime
+import logging
 import os
 import re
 import xmlrpclib
@@ -38,6 +39,8 @@ from jinja2 import Template
 
 __version__ = '0.1.1'
 bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi')
+# So the bugzilla module has some way to complain
+logging.basicConfig()
 
 
 class MediaWiki(fedora.client.Wiki):
