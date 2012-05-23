@@ -38,7 +38,8 @@ from kitchen.text.converters import to_bytes
 from jinja2 import Template
 
 __version__ = '0.1.1'
-bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi')
+bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi', 
+   cookiefile=None)
 # So the bugzilla module has some way to complain
 logging.basicConfig()
 
