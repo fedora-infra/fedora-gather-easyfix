@@ -43,6 +43,16 @@ bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi',
 # So the bugzilla module has some way to complain
 logging.basicConfig()
 
+RETRIES = 2
+
+
+class MediaWikiException(Exception):
+    """ MediaWikiException class.
+    Exception class generated when something has gone wrong while
+    querying the MediaWiki instance of the project.
+    """
+    pass
+
 
 class MediaWiki(fedora.client.Wiki):
     """ Mediawiki class.
@@ -65,10 +75,19 @@ class MediaWiki(fedora.client.Wiki):
         if req_params:
             req_params["format"] = "json"
 
-        data = self.send_request(method, req_params, auth, **kwargs)
+        data = None
+        for i in range(0, RETRIES+1):
+            try:
+                data = self.send_request(method, req_params, auth, **kwargs)
+            except fedora.client.ServerError, ex:
+                if i >= RETRIES:
+                    raise MediaWikiException(
+                    'Could not contact the wiki -- error: %s' % ex)
+            else:
+                break
 
         if 'error' in data:
-            raise Exception(data['error']['info'])
+            raise MediaWikiException(data['error']['info'])
         return data
 
     def get_pagesource(self, titles):
@@ -145,7 +164,11 @@ def main():
         print 'No template found'
         return 1
 
-    projects = gather_project()
+    try:
+        projects = gather_project()
+    except MediaWikiException, ex:
+        print ex
+        return
     ticket_num = 0
     for project in projects.keys():
         #print 'Project: %s' % project
