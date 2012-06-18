@@ -42,6 +42,8 @@ bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi',
    cookiefile=None)
 # So the bugzilla module has some way to complain
 logging.basicConfig()
+logger = logging.getLogger('bugzilla')
+#logger.setLevel(logging.DEBUG)
 
 RETRIES = 2
 
@@ -103,17 +105,21 @@ class MediaWiki(fedora.client.Wiki):
                 )
         return data['query']['pages'].popitem()[1]['revisions'][0]['*']
 
+
 def gather_bugzilla_easyfix():
     """ From the Red Hat bugzilla, retrieve all new tickets flagged as
     easyfix.
     """
     bugbz = bzclient.query(
-         {'keywords': 'easyfix',
-         'keywords_type': 'allwords',
+         {'f1': 'keywords',
+         'o1': 'allwords',
+         'v1': 'easyfix',
+         'query_format': 'advanced',
          'bug_status': ['NEW'],
          'classification': 'Fedora'})
     #print " {0} easyfix bugs retrieve from the BZ ".format(len(bugbz))
     return bugbz
+
 
 def gather_project():
     """ Retrieve all the projects which have subscribed to this idea.
