@@ -41,7 +41,6 @@
     <body id="fedoraproject-org" class="lang-en">
         <!-- header -->
 
-            
 <div id="header">
     <div class="container_16">
         <div class="grid_6 prefix_10">
@@ -134,7 +133,8 @@
                         {% for bug in bzbugs | sort %}
                             <li>
                                 <a href="http://bugzilla.redhat.com/{{bug.bug_id}}">#{{bug.bug_id}}</a>
-                                <a href="https://apps.fedoraproject.org/packages/{{bug.component}}">{{bug.component}}</a> - {{bug.short_desc}} <br />
+                                (<a href="https://apps.fedoraproject.org/packages/{{bug.component}}">
+                                    {{bug.component}}</a>) - {{bug.short_desc}} <br />
                                 {% if '@' in bug.assigned_to %}
                                 Contact: <a href="mailto:{{bug.assigned_to}}">{{bug.assigned_to.split('@')[0]}}</a>
                                 {% else %}
@@ -160,7 +160,7 @@
                     </li>
                     {% endfor %}
                 </ul>
-                
+
             </div>
             <!-- /start sidebar -->
             <div class="clear"></div>
