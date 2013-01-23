@@ -27,9 +27,11 @@ the wiki. To be sorted out...
 """
 
 import datetime
+import json
 import logging
 import os
 import re
+import urllib2
 import xmlrpclib
 from bugzilla.rhbugzilla import RHBugzilla
 import fedora.client
@@ -106,6 +108,30 @@ class MediaWiki(fedora.client.Wiki):
         return data['query']['pages'].popitem()[1]['revisions'][0]['*']
 
 
+class Project(object):
+    """ Simple object representation of a project. """
+
+    def __init__(self):
+        self.name = ""
+        self.url = ""
+        self.site = ""
+        self.owner = ""
+        self.tag = ""
+        self.tickets = []
+
+
+class Ticket(object):
+    """ Simple object representation of a ticket. """
+
+    def __init__(self):
+        self.id = ""
+        self.url = ""
+        self.title = ""
+        self.status = ""
+        self.type = ""
+        self.component = ""
+
+
 def gather_bugzilla_easyfix():
     """ From the Red Hat bugzilla, retrieve all new tickets flagged as
     easyfix.
@@ -126,13 +152,15 @@ def gather_project():
     """
     wiki = MediaWiki(base_url='https://fedoraproject.org/w/')
     page = wiki.get_pagesource("Easyfix")
-    projects = {}
+    projects = []
     for row in page.split('\n'):
         regex = re.search(' \* ([^ ]*) ([^ ]*)( [^ ]*)?', row)
         if regex:
-            projects[regex.group(1)] = {'name': regex.group(1),
-                                        'tag': regex.group(2),
-                                        'owner': regex.group(3)}
+            project = Project()
+            project.name = regex.group(1)
+            project.tag = regex.group(2)
+            project.owner = regex.group(3)
+            projects.append(project)
     return projects
 
 
@@ -176,17 +204,43 @@ def main():
         print ex
         return
     ticket_num = 0
-    for project in projects.keys():
-        #print 'Project: %s' % project
+    for project in projects:
+        print 'Project: %s' % project.name
         tickets = []
-        for ticket in get_open_tickets_for_keyword(project,
-            projects[project]['tag']):
-            ticket_num = ticket_num + 1
-            ticket_info = {'id': ticket[0]}
-            for key in ticket[3].keys():
-                ticket_info[key] = ticket[3][key]
-            tickets.append(ticket_info)
-        projects[project]['tickets'] = tickets
+        if project.name.startswith('github:'):
+            project.name = project.name.split('github:')[1]
+            project.url = 'http://github.com/%s/' % (project.name)
+            project.site = 'github'
+            url = 'https://api.github.com/repos/%s/issues' \
+                '?labels=%s&state=open' % (project.name, project.tag)
+            stream = urllib2.urlopen(url)
+            output = stream.read()
+            jsonobj = json.loads(output)
+            if jsonobj:
+                for ticket in jsonobj:
+                    ticket_num = ticket_num + 1
+                    ticketobj = Ticket()
+                    ticketobj.id = ticket['number']
+                    ticketobj.title = ticket['title']
+                    ticketobj.url = ticket['html_url']
+                    ticketobj.status = ticket['state']
+                    tickets.append(ticketobj)
+        else:
+            project.url = 'http://fedorahosted.org/%s/' % (project.name)
+            project.site = 'trac'
+            for ticket in get_open_tickets_for_keyword(project.name,
+                    project.tag):
+                ticket_num = ticket_num + 1
+                ticketobj = Ticket()
+                ticketobj.id = ticket[0]
+                ticketobj.title = ticket[3]['summary']
+                ticketobj.url = 'http://fedorahosted.org/%s/ticket/%s' %(
+                    project, ticket[0])
+                ticketobj.status = ticket[3]['status']
+                ticketobj.type = ticket[3]['type']
+                ticketobj.component = ticket[3]['component']
+                tickets.append(ticketobj)
+        project.tickets = tickets
 
     bzbugs = gather_bugzilla_easyfix()
 
