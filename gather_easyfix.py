@@ -205,7 +205,7 @@ def main():
         return
     ticket_num = 0
     for project in projects:
-        print 'Project: %s' % project.name
+        #print 'Project: %s' % project.name
         tickets = []
         if project.name.startswith('github:'):
             project.name = project.name.split('github:')[1]
