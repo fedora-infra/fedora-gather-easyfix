@@ -109,7 +109,7 @@
                         {% for project in projects %}
                         {% if project.tickets %}
                         <div class="main-page-section">
-                            <h2><a name="{{ project.name }}">{{ project.name }}</a></h2>
+                            <h2><a href="{{ project.url }}" name="{{ project.name }}">{{ project.name }}</a></h2>
                             <p>
                             To get started contact <a
                             href="mailto:{{ project.owner }}@fedoraproject.org">
