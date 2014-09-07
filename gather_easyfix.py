@@ -61,8 +61,8 @@ class MediaWikiException(Exception):
 class MediaWiki(fedora.client.Wiki):
     """ Mediawiki class.
     Handles interaction with the Mediawiki.
-    Code stollen from cnucnu:
-    http://fedorapeople.org/gitweb?p=till/public_git/cnucnu.git;a=summary
+    Code stolen from cnucnu:
+    https://fedorapeople.org/gitweb?p=till/public_git/cnucnu.git;a=summary
     """
 
     def __init__(self, base_url='https://fedoraproject.org/w/', *args,
@@ -209,7 +209,7 @@ def main():
         tickets = []
         if project.name.startswith('github:'):
             project.name = project.name.split('github:')[1]
-            project.url = 'http://github.com/%s/' % (project.name)
+            project.url = 'https://github.com/%s/' % (project.name)
             project.site = 'github'
             url = 'https://api.github.com/repos/%s/issues' \
                 '?labels=%s&state=open' % (project.name, project.tag)
@@ -226,7 +226,7 @@ def main():
                     ticketobj.status = ticket['state']
                     tickets.append(ticketobj)
         else:
-            project.url = 'http://fedorahosted.org/%s/' % (project.name)
+            project.url = 'https://fedorahosted.org/%s/' % (project.name)
             project.site = 'trac'
             for ticket in get_open_tickets_for_keyword(project.name,
                     project.tag):
@@ -234,7 +234,7 @@ def main():
                 ticketobj = Ticket()
                 ticketobj.id = ticket[0]
                 ticketobj.title = ticket[3]['summary']
-                ticketobj.url = 'http://fedorahosted.org/%s/ticket/%s' %(
+                ticketobj.url = 'https://fedorahosted.org/%s/ticket/%s' %(
                     project, ticket[0])
                 ticketobj.status = ticket[3]['status']
                 ticketobj.type = ticket[3]['type']
