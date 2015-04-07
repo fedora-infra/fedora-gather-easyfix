@@ -26,6 +26,7 @@ The different project to suscribe by email or a git repo or a page on
 the wiki. To be sorted out...
 """
 
+import argparse
 import datetime
 import json
 import logging
@@ -185,11 +186,27 @@ def get_open_tickets_for_keyword(project, keyword):
     return tickets
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(__doc__)
+    parser.add_argument(
+        '--fedmenu-url', help="URL of the fedmenu resources (optional)")
+    parser.add_argument(
+        '--fedmenu-data-url', help="URL of the fedmenu data source (optional)")
+    args = parser.parse_args()
+    result = {}
+    for key in ['fedmenu_url', 'fedmenu_data_url']:
+        if getattr(args, key):
+            result[key] = getattr(args, key)
+    return result
+
+
 def main():
     """ For each projects which have suscribed in the correct place
     (fedoraproject wiki page), gather all the tickets containing the
     provided keyword.
     """
+
+    extra_kwargs = parse_arguments()
 
     template = '/etc/fedora-gather-easyfix/template.html'
     if not os.path.exists(template):
@@ -251,9 +268,14 @@ def main():
         stream.close()
         # Fill the template
         mytemplate = Template(tplfile)
-        html = mytemplate.render(projects=projects, bzbugs = bzbugs,
-            ticket_num=ticket_num, bzbugs_num=len(bzbugs),
-            date=datetime.datetime.now().strftime("%a %b %d %Y %H:%M"))
+        html = mytemplate.render(
+            projects=projects,
+            bzbugs=bzbugs,
+            ticket_num=ticket_num,
+            bzbugs_num=len(bzbugs),
+            date=datetime.datetime.now().strftime("%a %b %d %Y %H:%M"),
+            **extra_kwargs
+        )
         # Write down the page
         stream = open('index.html', 'w')
         stream.write(to_bytes(html))
