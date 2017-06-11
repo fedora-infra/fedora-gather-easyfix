@@ -247,8 +247,7 @@ def main():
             project.url = 'https://pagure.io/%s/' % (project.name)
             project.site = 'pagure.io'
             url = 'https://pagure.io/api/0/%s/issues' \
-                '?status=Open&tags=%s' % (
-                project.name, project.tag)
+                '?status=Open&tags=%s' % (project.name, project.tag)
             stream = urllib2.urlopen(url)
             output = stream.read()
             jsonobj = json.loads(output)
