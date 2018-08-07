@@ -279,8 +279,7 @@ def main():
                     ticketobj = Ticket()
                     ticketobj.id = ticket['id']
                     ticketobj.title = ticket['title']
-                    ticketobj.url = 'https://gitlab.com/%s/issue/%s' % (
-                        project.name, ticket['id'])
+                    ticketobj.url = ticket['web_url']
                     ticketobj.status = ticket['state']
                     tickets.append(ticketobj)
         else:
