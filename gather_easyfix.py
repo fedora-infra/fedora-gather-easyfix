@@ -165,27 +165,6 @@ def gather_project():
     return projects
 
 
-def get_open_tickets_for_keyword(project, keyword):
-    """ For a given project return the tickets ID which have the given
-    keyword attached.
-    :arg project, name of the project on fedorahosted.org
-    :arg keyword, search the trac for open tickets having this keyword
-    in the keywords field.
-    """
-    tickets = []
-    try:
-        server = xmlrpclib.ServerProxy(
-            'https://fedorahosted.org/%s/rpc' % project)
-        query = 'status=assigned&status=new&status=reopened&' \
-            'keywords=~%s' % keyword
-        for ticket in server.ticket.query(query):
-            tickets.append(server.ticket.get(ticket))
-    except xmlrpclib.Error, err:
-        print '   Could not retrieve information for project: %s' % project
-        print '   Error: %s' % err
-    return tickets
-
-
 def parse_arguments():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument(
@@ -282,21 +261,6 @@ def main():
                     ticketobj.url = ticket['web_url']
                     ticketobj.status = ticket['state']
                     tickets.append(ticketobj)
-        else:
-            project.url = 'https://fedorahosted.org/%s/' % (project.name)
-            project.site = 'trac'
-            for ticket in get_open_tickets_for_keyword(project.name,
-                    project.tag):
-                ticket_num = ticket_num + 1
-                ticketobj = Ticket()
-                ticketobj.id = ticket[0]
-                ticketobj.title = ticket[3]['summary']
-                ticketobj.url = 'https://fedorahosted.org/%s/ticket/%s' %(
-                    project.name, ticket[0])
-                ticketobj.status = ticket[3]['status']
-                ticketobj.type = ticket[3]['type']
-                ticketobj.component = ticket[3]['component']
-                tickets.append(ticketobj)
         project.tickets = tickets
 
     bzbugs = gather_bugzilla_easyfix()
