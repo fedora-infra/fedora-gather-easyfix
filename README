@@ -30,3 +30,4 @@ Dependencies:
  - python
  - python-jinja2
  - python-fedora
+ - mwclient (via pip)

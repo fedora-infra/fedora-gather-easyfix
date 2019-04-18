@@ -39,6 +39,7 @@ import fedora.client
 from kitchen.text.converters import to_bytes
 # Let's import template stuff
 from jinja2 import Template
+import mwclient
 
 __version__ = '0.1.1'
 bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi',
@@ -59,55 +60,24 @@ class MediaWikiException(Exception):
     pass
 
 
-class MediaWiki(fedora.client.Wiki):
+class MediaWiki():
     """ Mediawiki class.
     Handles interaction with the Mediawiki.
-    Code stolen from cnucnu:
-    https://fedorapeople.org/gitweb?p=till/public_git/cnucnu.git;a=summary
     """
 
-    def __init__(self, base_url='https://fedoraproject.org/w/', *args,
-        **kwargs):
+    def __init__(self, base_url):
         """ Instanciate a Mediawiki client.
-        :arg base_url: base url of the mediawiki to query.
+        :arg base_url: site url of the mediawiki to query.
         """
-        super(MediaWiki, self).__init__(base_url, *args, **kwargs)
+        self.site = mwclient.Site(base_url)
 
-    def json_request(self, method="api.php", req_params=None,
-        auth=False, **kwargs):
-        """ Perform a json request to retrieve the content of a page.
-        """
-        if req_params:
-            req_params["format"] = "json"
 
-        data = None
-        for i in range(0, RETRIES+1):
-            try:
-                data = self.send_request(method, req_params, auth, **kwargs)
-            except fedora.client.ServerError, ex:
-                if i >= RETRIES:
-                    raise MediaWikiException(
-                    'Could not contact the wiki -- error: %s' % ex)
-            else:
-                break
 
-        if 'error' in data:
-            raise MediaWikiException(data['error']['info'])
-        return data
-
-    def get_pagesource(self, titles):
+    def get_pagesource(self, title):
         """ Retrieve the content of a given page from Mediawiki.
-        :arg titles, the title of the page to return
+        :arg title, the title of the page to return
         """
-        data = self.json_request(req_params={
-                'action': 'query',
-                'titles': titles,
-                'prop': 'revisions',
-                'rvprop': 'content'
-                }
-                )
-        return data['query']['pages'].popitem()[1]['revisions'][0]['*']
-
+        return self.site.pages[title].text()
 
 class Project(object):
     """ Simple object representation of a project. """
@@ -160,7 +130,7 @@ def gather_bugzilla_easyfix():
 def gather_project():
     """ Retrieve all the projects which have subscribed to this idea.
     """
-    wiki = MediaWiki(base_url='https://fedoraproject.org/w/')
+    wiki = MediaWiki('fedoraproject.org')
     page = wiki.get_pagesource("Easyfix")
     projects = []
     for row in page.split('\n'):
