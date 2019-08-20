@@ -1,5 +1,5 @@
 #!/usr/bin/python -tt
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 #    This program is free software; you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -32,22 +32,25 @@ import json
 import logging
 import os
 import re
+
 try:
     from urllib2 import urlopen
 except:
     from urllib.request import urlopen
 from bugzilla.rhbugzilla import RHBugzilla
+
 # Let's import template stuff
 from jinja2 import Template
 import mwclient
 
-__version__ = '0.1.1'
-bzclient = RHBugzilla(url='https://bugzilla.redhat.com/xmlrpc.cgi',
-   cookiefile=None)
+__version__ = "0.1.1"
+bzclient = RHBugzilla(
+    url="https://bugzilla.redhat.com/xmlrpc.cgi", cookiefile=None
+)
 # So the bugzilla module has some way to complain
 logging.basicConfig()
-logger = logging.getLogger('bugzilla')
-#logger.setLevel(logging.DEBUG)
+logger = logging.getLogger("bugzilla")
+# logger.setLevel(logging.DEBUG)
 
 RETRIES = 2
 
@@ -57,10 +60,11 @@ class MediaWikiException(Exception):
     Exception class generated when something has gone wrong while
     querying the MediaWiki instance of the project.
     """
+
     pass
 
 
-class MediaWiki():
+class MediaWiki:
     """ Mediawiki class.
     Handles interaction with the Mediawiki.
     """
@@ -71,13 +75,12 @@ class MediaWiki():
         """
         self.site = mwclient.Site(base_url)
 
-
-
     def get_pagesource(self, title):
         """ Retrieve the content of a given page from Mediawiki.
         :arg title, the title of the page to return
         """
         return self.site.pages[title].text()
+
 
 class Project(object):
     """ Simple object representation of a project. """
@@ -108,33 +111,37 @@ def gather_bugzilla_easyfix():
     easyfix or whiteboard trivial.
     """
     bugbz_easyfix = bzclient.query(
-        {'f1': 'keywords',
-         'o1': 'allwords',
-         'v1': 'easyfix',
-         'query_format': 'advanced',
-         'bug_status': ['NEW'],
-         'classification': 'Fedora'})
+        {
+            "f1": "keywords",
+            "o1": "allwords",
+            "v1": "easyfix",
+            "query_format": "advanced",
+            "bug_status": ["NEW"],
+            "classification": "Fedora",
+        }
+    )
     # print(" {0} easyfix bugs retrieved from BZ".format(len(bugbz_easyfix)))
     bugbz_trivial = bzclient.query(
         {
-            'status_whiteboard': 'trivial',
-            'status_whiteboard_type': 'anywords',
-            'query_format': 'advanced',
-            'bug_status': ['NEW'],
-            'classification': 'Fedora'
-        })
+            "status_whiteboard": "trivial",
+            "status_whiteboard_type": "anywords",
+            "query_format": "advanced",
+            "bug_status": ["NEW"],
+            "classification": "Fedora",
+        }
+    )
     # print(" {0} trivial bugs retrieved from BZ".format(len(bugbz)))
-    return (bugbz_easyfix + bugbz_trivial)
+    return bugbz_easyfix + bugbz_trivial
 
 
 def gather_project():
     """ Retrieve all the projects which have subscribed to this idea.
     """
-    wiki = MediaWiki('fedoraproject.org')
+    wiki = MediaWiki("fedoraproject.org")
     page = wiki.get_pagesource("Easyfix")
     projects = []
-    for row in page.split('\n'):
-        regex = re.search(' \* ([^ ]*) ([^ ]*)( [^ ]*)?', row)
+    for row in page.split("\n"):
+        regex = re.search(" \* ([^ ]*) ([^ ]*)( [^ ]*)?", row)
         if regex:
             project = Project()
             project.name = regex.group(1)
@@ -147,12 +154,14 @@ def gather_project():
 def parse_arguments():
     parser = argparse.ArgumentParser(__doc__)
     parser.add_argument(
-        '--fedmenu-url', help="URL of the fedmenu resources (optional)")
+        "--fedmenu-url", help="URL of the fedmenu resources (optional)"
+    )
     parser.add_argument(
-        '--fedmenu-data-url', help="URL of the fedmenu data source (optional)")
+        "--fedmenu-data-url", help="URL of the fedmenu data source (optional)"
+    )
     args = parser.parse_args()
     result = {}
-    for key in ['fedmenu_url', 'fedmenu_data_url']:
+    for key in ["fedmenu_url", "fedmenu_data_url"]:
         if getattr(args, key):
             result[key] = getattr(args, key)
     return result
@@ -166,11 +175,11 @@ def main():
 
     extra_kwargs = parse_arguments()
 
-    template = '/etc/fedora-gather-easyfix/template.html'
+    template = "/etc/fedora-gather-easyfix/template.html"
     if not os.path.exists(template):
-        template = './template.html'
+        template = "./template.html"
     if not os.path.exists(template):
-        print('No template found')
+        print("No template found")
         return 1
 
     try:
@@ -180,14 +189,16 @@ def main():
         return
     ticket_num = 0
     for project in projects:
-        #print('Project: %s' % project.name)
+        # print('Project: %s' % project.name)
         tickets = []
-        if project.name.startswith('github:'):
-            project.name = project.name.split('github:')[1]
-            project.url = 'https://github.com/%s/' % (project.name)
-            project.site = 'github'
-            url = 'https://api.github.com/repos/%s/issues' \
-                '?labels=%s&state=open' % (project.name, project.tag)
+        if project.name.startswith("github:"):
+            project.name = project.name.split("github:")[1]
+            project.url = "https://github.com/%s/" % (project.name)
+            project.site = "github"
+            url = (
+                "https://api.github.com/repos/%s/issues"
+                "?labels=%s&state=open" % (project.name, project.tag)
+            )
             stream = urlopen(url)
             output = stream.read()
             jsonobj = json.loads(output)
@@ -195,39 +206,44 @@ def main():
                 for ticket in jsonobj:
                     ticket_num = ticket_num + 1
                     ticketobj = Ticket()
-                    ticketobj.id = ticket['number']
-                    ticketobj.title = ticket['title']
-                    ticketobj.url = ticket['html_url']
-                    ticketobj.status = ticket['state']
+                    ticketobj.id = ticket["number"]
+                    ticketobj.title = ticket["title"]
+                    ticketobj.url = ticket["html_url"]
+                    ticketobj.status = ticket["state"]
                     tickets.append(ticketobj)
-        elif project.name.startswith('pagure.io:'):
-            project.name = project.name.split('pagure.io:')[1]
-            project.url = 'https://pagure.io/%s/' % (project.name)
-            project.site = 'pagure.io'
-            url = 'https://pagure.io/api/0/%s/issues' \
-                '?status=Open&tags=%s' % (project.name, project.tag)
+        elif project.name.startswith("pagure.io:"):
+            project.name = project.name.split("pagure.io:")[1]
+            project.url = "https://pagure.io/%s/" % (project.name)
+            project.site = "pagure.io"
+            url = (
+                "https://pagure.io/api/0/%s/issues"
+                "?status=Open&tags=%s" % (project.name, project.tag)
+            )
             stream = urlopen(url)
             output = stream.read()
             jsonobj = json.loads(output)
             if jsonobj:
-                for ticket in jsonobj['issues']:
+                for ticket in jsonobj["issues"]:
                     ticket_num = ticket_num + 1
                     ticketobj = Ticket()
-                    ticketobj.id = ticket['id']
-                    ticketobj.title = ticket['title']
-                    ticketobj.url = 'https://pagure.io/%s/issue/%s' % (
-                        project.name, ticket['id'])
-                    ticketobj.status = ticket['status']
+                    ticketobj.id = ticket["id"]
+                    ticketobj.title = ticket["title"]
+                    ticketobj.url = "https://pagure.io/%s/issue/%s" % (
+                        project.name,
+                        ticket["id"],
+                    )
+                    ticketobj.status = ticket["status"]
                     tickets.append(ticketobj)
-        elif project.name.startswith('gitlab.com:'):
+        elif project.name.startswith("gitlab.com:"):
             # https://docs.gitlab.com/ee/api/issues.html#list-project-issues
-            project.name = project.name.split('gitlab.com:')[1]
-            project.url = 'https://gitlab.com/%s/' % (project.name)
-            project.site = 'gitlab.com'
-            url = 'https://gitlab.com/api/v4/projects/%s/issues' \
-                '?state=opened&labels=%s' % (urllib2.quote(project.name,
-                                                           safe=''),
-                                             project.tag)
+            project.name = project.name.split("gitlab.com:")[1]
+            project.url = "https://gitlab.com/%s/" % (project.name)
+            project.site = "gitlab.com"
+            url = (
+                "https://gitlab.com/api/v4/projects/%s/issues"
+                "?state=opened&labels=%s"
+                % (urllib2.quote(project.name, safe=""), project.tag)
+            )
             stream = urlopen(url)
             output = stream.read()
             jsonobj = json.loads(output)
@@ -235,10 +251,10 @@ def main():
                 for ticket in jsonobj:
                     ticket_num = ticket_num + 1
                     ticketobj = Ticket()
-                    ticketobj.id = ticket['id']
-                    ticketobj.title = ticket['title']
-                    ticketobj.url = ticket['web_url']
-                    ticketobj.status = ticket['state']
+                    ticketobj.id = ticket["id"]
+                    ticketobj.title = ticket["title"]
+                    ticketobj.url = ticket["web_url"]
+                    ticketobj.status = ticket["state"]
                     tickets.append(ticketobj)
         project.tickets = tickets
 
@@ -247,7 +263,7 @@ def main():
 
     try:
         # Read in template
-        stream = open(template, 'r')
+        stream = open(template, "r")
         tplfile = stream.read()
         stream.close()
         # Fill the template
@@ -261,12 +277,12 @@ def main():
             **extra_kwargs
         )
         # Write down the page
-        stream = open('index.html', 'w')
+        stream = open("index.html", "w")
         stream.write(html)
         stream.close()
     except IOError as err:
-        print('ERROR: %s' % err)
+        print("ERROR: %s" % err)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
