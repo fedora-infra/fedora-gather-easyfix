@@ -142,7 +142,7 @@
                     </div>
                     <div id="tabs-2">
                         <ul>
-                        {% for bug in bzbugs | sort %}
+                        {% for bug in bzbugs %}
                             <li>
                                 <a href="https://bugzilla.redhat.com/{{bug.bug_id}}">#{{bug.bug_id}}</a>
                                 (<a href="https://apps.fedoraproject.org/packages/{{bug.component}}">

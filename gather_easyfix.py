@@ -32,11 +32,11 @@ import json
 import logging
 import os
 import re
-import urllib2
-import xmlrpclib
+try:
+    from urllib2 import urlopen
+except:
+    from urllib.request import urlopen
 from bugzilla.rhbugzilla import RHBugzilla
-import fedora.client
-from kitchen.text.converters import to_bytes
 # Let's import template stuff
 from jinja2 import Template
 import mwclient
@@ -114,7 +114,7 @@ def gather_bugzilla_easyfix():
          'query_format': 'advanced',
          'bug_status': ['NEW'],
          'classification': 'Fedora'})
-    # print " {0} easyfix bugs retrieved from BZ".format(len(bugbz_easyfix))
+    # print(" {0} easyfix bugs retrieved from BZ".format(len(bugbz_easyfix)))
     bugbz_trivial = bzclient.query(
         {
             'status_whiteboard': 'trivial',
@@ -123,7 +123,7 @@ def gather_bugzilla_easyfix():
             'bug_status': ['NEW'],
             'classification': 'Fedora'
         })
-    # print " {0} trivial bugs retrieved from BZ".format(len(bugbz))
+    # print(" {0} trivial bugs retrieved from BZ".format(len(bugbz)))
     return (bugbz_easyfix + bugbz_trivial)
 
 
@@ -170,17 +170,17 @@ def main():
     if not os.path.exists(template):
         template = './template.html'
     if not os.path.exists(template):
-        print 'No template found'
+        print('No template found')
         return 1
 
     try:
         projects = gather_project()
-    except MediaWikiException, ex:
-        print ex
+    except MediaWikiException as ex:
+        print(ex)
         return
     ticket_num = 0
     for project in projects:
-        #print 'Project: %s' % project.name
+        #print('Project: %s' % project.name)
         tickets = []
         if project.name.startswith('github:'):
             project.name = project.name.split('github:')[1]
@@ -188,7 +188,7 @@ def main():
             project.site = 'github'
             url = 'https://api.github.com/repos/%s/issues' \
                 '?labels=%s&state=open' % (project.name, project.tag)
-            stream = urllib2.urlopen(url)
+            stream = urlopen(url)
             output = stream.read()
             jsonobj = json.loads(output)
             if jsonobj:
@@ -206,7 +206,7 @@ def main():
             project.site = 'pagure.io'
             url = 'https://pagure.io/api/0/%s/issues' \
                 '?status=Open&tags=%s' % (project.name, project.tag)
-            stream = urllib2.urlopen(url)
+            stream = urlopen(url)
             output = stream.read()
             jsonobj = json.loads(output)
             if jsonobj:
@@ -228,7 +228,7 @@ def main():
                 '?state=opened&labels=%s' % (urllib2.quote(project.name,
                                                            safe=''),
                                              project.tag)
-            stream = urllib2.urlopen(url)
+            stream = urlopen(url)
             output = stream.read()
             jsonobj = json.loads(output)
             if jsonobj:
@@ -243,6 +243,7 @@ def main():
         project.tickets = tickets
 
     bzbugs = gather_bugzilla_easyfix()
+    bzbugs.sort(key=lambda x: x.id)
 
     try:
         # Read in template
@@ -261,10 +262,10 @@ def main():
         )
         # Write down the page
         stream = open('index.html', 'w')
-        stream.write(to_bytes(html))
+        stream.write(html)
         stream.close()
-    except IOError, err:
-        print 'ERROR: %s' % err
+    except IOError as err:
+        print('ERROR: %s' % err)
 
 
 if __name__ == '__main__':
