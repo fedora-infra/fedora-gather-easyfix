@@ -27,7 +27,7 @@ your project to the EasyFix list.
 
 Dependencies:
 -------------
- - python
- - python-jinja2
+ - python3
+ - python3-jinja2
  - python-fedora
- - mwclient (via pip)
+ - python3-mwclient
