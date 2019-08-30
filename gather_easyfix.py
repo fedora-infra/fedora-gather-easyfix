@@ -43,7 +43,7 @@ from bugzilla.rhbugzilla import RHBugzilla
 from jinja2 import Template
 import mwclient
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 bzclient = RHBugzilla(
     url="https://bugzilla.redhat.com/xmlrpc.cgi", cookiefile=None
 )

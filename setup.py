@@ -3,8 +3,23 @@
 Setup script
 """
 
+import os
+import re
+
 from distutils.core import setup
-from gather_easyfix import __version__
+
+
+scriptfile = os.path.join(os.path.dirname(__file__), "gather_easyfix.py")
+
+# Thanks to SQLAlchemy:
+# https://github.com/zzzeek/sqlalchemy/blob/master/setup.py#L104
+with open(scriptfile) as stream:
+    __version__ = (
+        re.compile(r".*__version__ = \"(.*?)\"", re.S)
+        .match(stream.read())
+        .group(1)
+    )
+
 
 setup(
     name = 'fedora-gather-easyfix',
