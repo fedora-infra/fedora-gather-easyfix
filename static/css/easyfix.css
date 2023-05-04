@@ -1,0 +1,22 @@
+.footer a {
+    color: #adb5bd;
+    text-decoration: none;
+    border-bottom: 1px dotted #6c757d;
+}
+
+a.anchor-link {
+    margin-left: 0.7rem;
+    color:#d3d3d3;
+    text-decoration: none;
+    font-size: 80%;
+}
+a.anchor-link:hover {
+    color: #6c757d;
+}
+
+nav .app-title {
+    font-family: Montserrat, sans-serif;
+    font-size: 200%;
+    font-weight: 600;
+    color: #2b4478 !important;
+}

@@ -1,0 +1,17 @@
+# output = "/srv"
+output = "output"
+# template = "/etc/fedora-gather-easyfix/template.html"
+template = "fedora_gather_easyfix/template.html"
+# repo_source = "wiki"
+# wiki_url = "https://fedoraproject.org/w/"
+repo_source = "file"
+repo_list = "repos.txt"
+
+[github]
+username = "yourgithubusername"
+api_key = "your-api-key"
+
+[cache]
+backend = "dogpile.cache.dbm"
+expiration_time = 3600
+arguments = {"filename" = "cache.dbm"}

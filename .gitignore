@@ -1,7 +1,6 @@
-easyfix.html
-index.html
 *~
 build/
 dist/
-MANIFEST
 *.pyc
+config.toml
+cache.dbm*

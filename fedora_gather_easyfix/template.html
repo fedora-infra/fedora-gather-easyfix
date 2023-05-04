@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="stylesheet" type="text/css" href="https://apps.fedoraproject.org/global/fedora-bootstrap-1.5.0/fedora-bootstrap.min.css" media="screen" />
+        <!-- <link rel="stylesheet" type="text/css" href="https://apps.fedoraproject.org/global/fedora-bootstrap-fonts/font-awesome.css" media="screen" /> -->
+        <link rel="stylesheet" type="text/css" href="https://apps.fedoraproject.org/global/fedora-bootstrap-fonts/montserrat.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="static/css/font-awesome-4.7.0/css/font-awesome.min.css" media="screen" />
+        <link rel="stylesheet" type="text/css" href="static/css/easyfix.css" media="screen" />
+
+        <link rel="shortcut icon" href="https://fedoraproject.org/favicon.ico" type="image/vnd.microsoft.icon" />
+
+        <title>Fedora Project easyfixes</title>
+    </head>
+    <body>
+
+        <nav class="navbar navbar-expand-lg navbar-light masthead py-2">
+            <a class="navbar-text" href="https://fedoraproject.org"><img src="static/img/logo.png" alt="Fedora logo" height="40"></a>
+            <span class="navbar-text app-title">EasyFixes</span>
+        </nav>
+
+        <div id="bodycontent">
+        <div class="bg-light border-bottom py-5">
+            <div class="container">
+                <div class="row">
+                    <div class="col-8">
+                        <div class="alert alert-info mb-4">
+                            <p>
+                                There are a number of projects within Fedora which are looking
+                                for help. Below are listed tasks which have been evaluated as easy
+                                entrance point for people who are looking to start contributing and
+                                do not know where to start.
+                            </p>
+                            <p class="mb-0">
+                                If you are a project owner, see the <a class="alert-link"
+                                href="https://fedoraproject.org/wiki/Easyfix">wiki</a> for more
+                                information.
+                            </p>
+                        </div>
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" role="tab" data-toggle="tab" aria-controls="tabs-1" href="#tabs-1" aria-selected="true">Fedora pagure and github projects</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" role="tab" data-toggle="tab" aria-controls="tabs-2" href="#tabs-2" aria-selected="false">Bugzilla</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content px-1">
+                            <div class="tab-pane fade show active" role="tabpanel" id="tabs-1">
+                                {% for group, projects in project_groups.items() %}
+                                {% if group %}
+                                <h2 class="text-capitalize mt-{{ '4' if loop.first else '5' }}" id="{{ group }}">
+                                    <i class="fa fa-users"></i>
+                                    {{ group }}
+                                    <a class="anchor-link" href="#{{ group }}"><i class="fa fa-link"></i></a>
+                                </h2>
+                                {% endif %}
+                                {% for project in projects %}
+                                {% if project.tickets %}
+                                <div class="card my-3"  id="{{ project.name }}">
+                                    <div class="card-body">
+                                        <h3 class="card-title">
+                                            <a href="{{ project.url }}">{{ project.repo_name }}</a>
+                                            <a class="anchor-link" href="#{{ project.name }}"><i class="fa fa-link"></i></a>
+                                        </h3>
+                                        <h6 class="card-subtitle mb-2 text-muted">
+                                            To get started contact <a href="mailto:{{ project.email }}">{{ project.owner }}</a>
+                                        </h6>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                    {% for ticket in project.tickets %}
+                                        <li class="list-group-item">
+                                            <p class="mb-0">
+                                                <strong>
+                                                    <a href="{{ ticket.url }}">#{{ ticket.id }}</a>
+                                                    {{ ticket.title|e }}
+                                                </strong>
+                                            </p>
+                                            <p class="mb-0">
+                                                Status : {{ ticket.status }}
+                                            </p>
+                                            <p class="mb-0">
+                                                Created <span class="timestamp">{{ ticket.created_at }}</span>, updated <span class="timestamp">{{ ticket.updated_at }}</span>
+                                            </p>
+                                            {% if ticket.labels %}
+                                            <p class="mb-0">
+                                                Labels:
+                                                {% for label in ticket.labels %}
+                                                <span class="badge badge-pill badge-light">{{ label }}</span>
+                                                {% endfor %}
+                                            </p>
+                                            {% endif %}
+                                            {% if ticket.type %}
+                                            <p class="mb-0">
+                                                Type: {{ ticket.type }}
+                                            </p>
+                                            {% endif %}
+                                            {% if ticket.component %}
+                                            <p class="mb-0">
+                                                Component : {{ ticket.component }}
+                                            </p>
+                                            {% endif %}
+                                            {% if ticket.assignees %}
+                                            <p class="mb-0">
+                                                Assigned to {{ ticket.assignees|join(", ") }}
+                                            </p>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endif %}
+                                {% endfor %}
+                                {% endfor %}
+                                <p> Total: {{ticket_num}} tickets found </p>
+                            </div>
+                            <div class="tab-pane fade" role="tabpanel" id="tabs-2">
+                                {% for component in bz_components|sort %}
+                                <div class="card my-3"  id="bz-{{ component }}">
+                                    <div class="card-body">
+                                        <h3 class="card-title">
+                                            <a href="https://apps.fedoraproject.org/packages/{{component}}">{{component}}</a>
+                                            <a class="anchor-link" href="#bz-{{ component }}"><i class="fa fa-link"></i></a>
+                                        </h3>
+                                    </div>
+                                    <ul class="list-group list-group-flush">
+                                    {% for bug in bz_components[component] %}
+                                        <li class="list-group-item">
+                                            <p class="mb-0">
+                                                <strong>
+                                                    <a href="https://bugzilla.redhat.com/{{bug.bug_id}}">#{{bug.bug_id}}</a>
+                                                    {{ bug.short_desc }}
+                                                </strong>
+                                            </p>
+                                            <p class="mb-0">
+                                                {% if '@' in bug.assigned_to %}
+                                                Contact: <a href="mailto:{{bug.assigned_to}}">{{bug.assigned_to.split('@')[0]}}</a>
+                                                {% else %}
+                                                Contact: {{bug.assigned_to}}
+                                                {% endif %}
+                                            </p>
+                                        </li>
+                                    {% endfor %}
+                                    </ul>
+                                </div>
+                                {% endfor %}
+                                <p> Total: {{bzbugs_num}} bugs found </p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- start sidebar -->
+                    <div class="col-4" id="sidebar">
+                        <h3>Project list</h3>
+                        <ul class="pl-3">
+                            {% for group, projects in project_groups.items() %}
+                            {% if group %}
+                            <li><a href="#{{ group}}">{{ group }}</a>
+                                <ul class="pl-3">
+                            {% endif %}
+                                {% for project in projects %}
+                                {% if project.tickets %}
+                                <li>
+                                    <a href="#{{ project.name }}">{{ project.repo_name }}</a>
+                                    <span class="badge badge-secondary">{{ project.tickets|length }}</span>
+                                    <a href="{{ project.url }}" target="_blank" title="{{ project.name }} on {{ project.site }}"><i class="fa fa-external-link"></i></a>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                            {% if group %}
+                                </ul>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                        </ul>
+
+                    </div>
+                </div>
+                <p>Last update: {{date}}</p>
+            </div>
+        </div>
+        </div>
+
+        <div class="footer py-5 text-white">
+            <div class="container">
+                <div class="row footerlinks justify-content-center text-center">
+                    <div class="col-sm-3 col-4 mt-3">
+                        <div>
+                            <dl>
+                                <dt class="text-uppercase h4"><strong>About</strong></dt>
+                                <dd><a href="https://getfedora.org/">Get Fedora Linux</a></dd>
+                                <dd><a href="https://getfedora.org/en/sponsors/">Sponsors</a></dd>
+                                <dd><a href="https://fedoramagazine.org">Fedora Magazine</a></dd>
+                                <dd><a href="https://fedoraproject.org/wiki/Legal:Main#Legal">Legal</a></dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-4 mt-3">
+                        <div>
+                            <dl>
+                                <dt class="text-uppercase h4"><strong>Support</strong></dt>
+                                <dd><a href="https://fedoraproject.org/wiki/Communicating_and_getting_help">Get Help</a></dd>
+                                <dd><a href="https://ask.fedoraproject.org/">Ask Fedora</a></dd>
+                                <dd><a href="https://fedoraproject.org/wiki/Common_F33_bugs">Common Bugs</a></dd>
+                                <dd><a href="https://developer.fedoraproject.org/">Fedora Developer Portal</a></dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-4 mt-3">
+                        <div>
+                            <dl>
+                                <dt class="text-uppercase h4"><strong>Community</strong></dt>
+                                <dd><a href="https://fedoraproject.org/wiki/Join">Join Fedora</a></dd>
+                                <dd><a href="https://fedoraproject.org/wiki/Overview">About Fedora</a></dd>
+                                <dd><a href="http://fedoraplanet.org">Planet Fedora</a></dd>
+                                <dd><a href="https://accounts.fedoraproject.org/">Fedora Accounts</a></dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+                <div class="row footerlinks">
+                    <div class="col-12 text-center">
+                        <p> Fedora is sponsored by Red Hat. <a href="https://www.redhat.com/en/technologies/linux-platforms/articles/relationship-between-fedora-and-rhel">Learn more about the relationship between Red Hat and Fedora »</a> </p>
+                        <div class="py-3"> <a href="https://www.redhat.com/"><img class="rh-logo" height=24px src="static/img/redhat.png" alt="Red Hat Logo"></a> </div>
+                        <p> © 2021 Red Hat, Inc. and others. </p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="https://code.jquery.com/jquery-3.6.4.min.js" ></script>
+        <script type="text/javascript" src="https://apps.fedoraproject.org/global/fedora-bootstrap-1.5.0/fedora-bootstrap.min.js" ></script>
+        <script type="text/javascript" src="static/js/jquery.relative-date.js" ></script>
+        <script type="text/javascript" src="static/js/easyfix.js" ></script>
+    </body>
+</html>

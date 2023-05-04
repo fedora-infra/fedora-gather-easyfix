@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "fedora-gather-easyfix"
+version = "0.3.0"
+description = "Gather easyfix tickets accross fedorahosted projects"
+authors = [
+    "Aurélien Bompard <aurelien@bompard.org>",
+    "Pierre-Yves Chibon <pingou@pingoured.fr>",
+]
+license = "GPLv3+"
+readme = "README.md"
+homepage = "https://github.com/fedora-infra/fedora-gather-easyfix"
+repository = "https://github.com/fedora-infra/fedora-gather-easyfix"
+packages = [{include = "fedora_gather_easyfix"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.30.0"
+Jinja2 = "^3.1.2"
+python-bugzilla = "^3.2.0"
+mwclient = "^0.10.1"
+"dogpile.cache" = "^1.2.0"
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.3.0"
+ruff = "^0.0.264"
+
+[tool.poetry.scripts]
+fedora-gather-easyfix = "fedora_gather_easyfix.cli:main"
+
+[tool.black]
+line-length = 100
+
+[tool.ruff]
+select = ["E", "F", "W", "I", "UP", "S", "B", "RUF"]
+line-length = 100
+target-version = "py311"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

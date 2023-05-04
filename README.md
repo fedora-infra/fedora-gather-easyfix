@@ -1,5 +1,4 @@
-fedora-gather-easyfix
-=====================
+# fedora-gather-easyfix
 
 
 The idea of this program is to gather tickets from different project
@@ -11,22 +10,20 @@ The script retrieves the list of participating project from:
 https://fedoraproject.org/wiki/Easyfix and generates a HTML page in the
 directory where it's run.
 
-Supported projects:
-===================
+## Supported projects:
 
 - pagure.io
 - github.com
 - gitlab.com
 - bugzilla.redhat.com
 
-Join fedora-gather-easyfix
-===========================
+## Join fedora-gather-easyfix
 
 Please see https://fedoraproject.org/wiki/Easyfix for information on how to add
 your project to the EasyFix list.
 
-Dependencies:
--------------
+## Dependencies:
+
  - python3
  - python3-jinja2
  - python3-mwclient
