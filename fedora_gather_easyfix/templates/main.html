@@ -96,9 +96,9 @@
                                                 Status : {{ ticket.status }}
                                             </p>
                                             <p class="mb-0">
-                                                {% if ticket.is_very_old %}
+                                                {% if ticket.updated_at is older_than config.very_old_days %}
                                                 <i class="fa fa-warning text-danger"></i>
-                                                {% elif ticket.is_old %}
+                                                {% elif ticket.updated_at is older_than config.old_days %}
                                                 <i class="fa fa-warning text-warning"></i>
                                                 {% endif %}
                                                 Created <span class="timestamp">{{ ticket.created_at.isoformat() }}</span>, updated <span class="timestamp">{{ ticket.updated_at.isoformat() }}</span>

@@ -64,8 +64,4 @@ class Ticket:
 
     @property
     def is_very_old(self):
-        try:
-            return self.updated_at < (datetime.now(tz=UTC) - timedelta(days=365 * 3))
-        except TypeError:
-            print(self.id, self.url, self.title, self.updated_at)
-            raise
+        return self.updated_at < (datetime.now(tz=UTC) - timedelta(days=365 * 3))

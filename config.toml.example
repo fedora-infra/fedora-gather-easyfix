@@ -1,11 +1,13 @@
 # output = "/srv"
 output = "output"
-# template = "/etc/fedora-gather-easyfix/template.html"
-template = "fedora_gather_easyfix/template.html"
 # repo_source = "wiki"
 # wiki_url = "fedoraproject.org"
 repo_source = "file"
 repo_list = "repos.txt"
+
+# Mark tickets as old or very old after these many days without an update
+old_days = 365
+very_old_days = 365 * 3
 
 [github]
 username = "yourgithubusername"
