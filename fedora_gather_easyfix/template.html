@@ -41,14 +41,14 @@
                         </div>
                         <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" role="tab" data-toggle="tab" aria-controls="tabs-1" href="#tabs-1" aria-selected="true">Fedora pagure and github projects</a>
+                                <a class="nav-link active" role="tab" data-toggle="tab" aria-controls="tab-repos" href="#tab-repos" aria-selected="true">Fedora pagure and github projects</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" role="tab" data-toggle="tab" aria-controls="tabs-2" href="#tabs-2" aria-selected="false">Bugzilla</a>
+                                <a class="nav-link" role="tab" data-toggle="tab" aria-controls="tab-bugzilla" href="#tab-bugzilla" aria-selected="false">Bugzilla</a>
                             </li>
                         </ul>
                         <div class="tab-content px-1">
-                            <div class="tab-pane fade show active" role="tabpanel" id="tabs-1">
+                            <div class="tab-pane fade show active" role="tabpanel" id="tab-repos">
                                 {% for group, projects in project_groups.items() %}
                                 {% if group %}
                                 <h2 class="text-capitalize mt-{{ '4' if loop.first else '5' }}" id="{{ group }}">
@@ -116,11 +116,13 @@
                                 {% endfor %}
                                 <p> Total: {{ticket_num}} tickets found </p>
                             </div>
-                            <div class="tab-pane fade" role="tabpanel" id="tabs-2">
+
+                            <!-- Bugzilla -->
+                            <div class="tab-pane fade" role="tabpanel" id="tab-bugzilla">
                                 {% for component in bz_components|sort %}
                                 <div class="card my-3"  id="bz-{{ component }}">
                                     <div class="card-body">
-                                        <h3 class="card-title">
+                                        <h3 class="card-title mb-0">
                                             <a href="https://apps.fedoraproject.org/packages/{{component}}">{{component}}</a>
                                             <a class="anchor-link" href="#bz-{{ component }}"><i class="fa fa-link"></i></a>
                                         </h3>
