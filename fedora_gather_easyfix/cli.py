@@ -1,36 +1,11 @@
-#    This program is free software; you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation; either version 2 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License along
-#    with this program; if not, write to the Free Software Foundation, Inc.,
-#    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-"""
-The idea of this program is to gather tickets from different project
-which are marked as 'easyfix' (or any other keyword for that matter).
-
-This version is a simple proof of concept, eventually it should be
-converted to an html page and this script run by a cron job of some sort.
-
-The different project to suscribe by email or a git repo or a page on
-the wiki. To be sorted out...
-"""
-
 import argparse
 import datetime
 import logging
 import os
+import tomllib
 from itertools import chain
 from shutil import copytree
 
-import tomllib
 from jinja2 import Template
 
 from .cache import cache
@@ -40,9 +15,7 @@ from .watch import get_projects
 
 def parse_arguments():
     parser = argparse.ArgumentParser(__doc__)
-    parser.add_argument(
-        "-c", "--config", default="config.toml", help="configuration file"
-    )
+    parser.add_argument("-c", "--config", default="config.toml", help="configuration file")
     return parser.parse_args()
 
 

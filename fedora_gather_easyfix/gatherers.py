@@ -41,9 +41,7 @@ class Gatherer:
 class GitHubGatherer(Gatherer):
     def __init__(self, config):
         super().__init__(config)
-        if "username" in config.get("github", {}) and "api_key" in config.get(
-            "github", {}
-        ):
+        if "username" in config.get("github", {}) and "api_key" in config.get("github", {}):
             auth = (config["github"]["username"], config["github"]["api_key"])
         else:
             auth = None
@@ -95,23 +93,15 @@ class PagureGatherer(Gatherer):
         url = f"https://pagure.io/api/0/{project.name}/issues?status=Open&tags={project.tag}"
         response = self._api_get(url)
         for ticket in response.json()["issues"]:
-            assignees = (
-                [ticket["assignee"]["name"]] if ticket["assignee"] is not None else []
-            )
-            labels = [
-                tag for tag in ticket["tags"] if tag.lower() != project.tag.lower()
-            ]
+            assignees = [ticket["assignee"]["name"]] if ticket["assignee"] is not None else []
+            labels = [tag for tag in ticket["tags"] if tag.lower() != project.tag.lower()]
             yield Ticket(
                 id=ticket["id"],
                 title=ticket["title"],
                 url=f"https://pagure.io/{project.name}/issue/{ticket['id']}",
                 status=ticket["status"],
-                created_at=datetime.datetime.utcfromtimestamp(
-                    int(ticket["date_created"])
-                ),
-                updated_at=datetime.datetime.utcfromtimestamp(
-                    int(ticket["last_updated"])
-                ),
+                created_at=datetime.datetime.utcfromtimestamp(int(ticket["date_created"])),
+                updated_at=datetime.datetime.utcfromtimestamp(int(ticket["last_updated"])),
                 labels=labels,
                 assignees=assignees,
             )
