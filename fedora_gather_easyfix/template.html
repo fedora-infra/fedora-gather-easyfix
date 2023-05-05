@@ -81,7 +81,17 @@
                                                     <a href="{{ ticket.url }}">#{{ ticket.id }}</a>
                                                     {{ ticket.title|e }}
                                                 </strong>
+                                                {% if ticket.body %}
+                                                <button class="btn btn-link btn-sm ml-1" data-toggle="collapse" data-target="#{{ project.name|replace('/', '-') }}-{{ ticket.id }}-body" aria-expanded="false" aria-controls="{{ project.name|replace('/', '-') }}-{{ ticket.id }}-body">
+                                                    <i class="fa fa-caret-down"></i>
+                                                </button>
+                                                {% endif %}
                                             </p>
+
+                                            {% if ticket.body %}
+                                            <pre class="collapse mb-0" id="{{ project.name|replace('/', '-') }}-{{ ticket.id }}-body">{{ ticket.body|e }}</pre>
+                                            {% endif %}
+
                                             <p class="mb-0">
                                                 Status : {{ ticket.status }}
                                             </p>
@@ -107,9 +117,9 @@
                                             </p>
                                             {% endif %}
                                             {% if ticket.assignees %}
-                                            <p class="mb-0">
+                                            <div class="alert alert-warning mb-0 px-2 py-1 d-inline-block">
                                                 Assigned to {{ ticket.assignees|join(", ") }}
-                                            </p>
+                                            </div>
                                             {% endif %}
                                         </li>
                                     {% endfor %}

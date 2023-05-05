@@ -36,6 +36,7 @@ class MediaWiki:
 
 def gather_project_from_wiki(url):
     """Retrieve all the projects which have subscribed to this idea."""
+    print("Getting repositories from MediaWiki")
     wiki = MediaWiki(url)
     page = wiki.get_pagesource("Easyfix")
     projects = []

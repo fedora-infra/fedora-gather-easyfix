@@ -51,6 +51,7 @@ class Ticket:
     status: str
     created_at: str
     updated_at: str
+    body: str = None
     labels: list[str] = field(default_factory=list)
     assignees: list[str] = field(default_factory=list)
     type: str = ""
