@@ -51,6 +51,7 @@ def main():
     bz_components = bz_gatherer.get_components()
     bz_tickets = chain(*bz_components.values())
 
+    print("Generating output")
     copytree("static", os.path.join(config["output"], "static"), dirs_exist_ok=True)
 
     try:

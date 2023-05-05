@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from datetime import UTC, datetime, timedelta
 
 
 @dataclass
@@ -49,10 +50,22 @@ class Ticket:
     url: str
     title: str
     status: str
-    created_at: str
-    updated_at: str
+    created_at: datetime
+    updated_at: datetime
     body: str = None
     labels: list[str] = field(default_factory=list)
     assignees: list[str] = field(default_factory=list)
     type: str = ""
     component: str = ""
+
+    @property
+    def is_old(self):
+        return self.updated_at < (datetime.now(tz=UTC) - timedelta(days=365))
+
+    @property
+    def is_very_old(self):
+        try:
+            return self.updated_at < (datetime.now(tz=UTC) - timedelta(days=365 * 3))
+        except TypeError:
+            print(self.id, self.url, self.title, self.updated_at)
+            raise

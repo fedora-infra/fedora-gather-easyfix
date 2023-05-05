@@ -12,8 +12,8 @@
 #    with this program; if not, write to the Free Software Foundation, Inc.,
 #    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import datetime
 from collections import defaultdict
+from datetime import UTC, datetime
 from urllib.parse import quote
 
 import requests
@@ -81,8 +81,6 @@ class GitHubGatherer(Gatherer):
             f"https://api.github.com/repos/{project.name}/issues"
             f"?labels={project.tag}&state=open"
         )
-        response = self.http.get(url)
-        response.raise_for_status()
         for ticket in self.all_pages(url):
             yield Ticket(
                 id=ticket["number"],
@@ -91,8 +89,8 @@ class GitHubGatherer(Gatherer):
                 status=ticket["state"],
                 body=ticket["body"],
                 assignees=ticket["assignees"],
-                created_at=ticket["created_at"],
-                updated_at=ticket["updated_at"],
+                created_at=datetime.fromisoformat(ticket["created_at"]),
+                updated_at=datetime.fromisoformat(ticket["updated_at"]),
                 labels=self._filter_labels(ticket, project),
             )
 
@@ -112,8 +110,8 @@ class PagureGatherer(Gatherer):
                 url=f"https://pagure.io/{project.name}/issue/{ticket['id']}",
                 status=ticket["status"],
                 body=ticket["content"],
-                created_at=datetime.datetime.utcfromtimestamp(int(ticket["date_created"])),
-                updated_at=datetime.datetime.utcfromtimestamp(int(ticket["last_updated"])),
+                created_at=datetime.fromtimestamp(int(ticket["date_created"]), tz=UTC),
+                updated_at=datetime.fromtimestamp(int(ticket["last_updated"]), tz=UTC),
                 labels=self._filter_labels(ticket, project),
                 assignees=assignees,
             )
@@ -140,11 +138,11 @@ class BugzillaGatherer(Gatherer):
         self.client = RHBugzilla(url="https://bugzilla.redhat.com/xmlrpc.cgi", cookiefile=None)
 
     @cache.cache_on_arguments()
-    def get_easyfixes(self):
+    def get_tickets(self):
         """From the Red Hat bugzilla, retrieve all new tickets with keyword
         easyfix or whiteboard trivial.
         """
-        return self.client.query(
+        easyfixes = self.client.query(
             {
                 "f1": "keywords",
                 "o1": "allwords",
@@ -155,10 +153,7 @@ class BugzillaGatherer(Gatherer):
             }
         )
         # print(" {0} easyfix bugs retrieved from BZ".format(len(bugbz_easyfix)))
-
-    @cache.cache_on_arguments()
-    def get_trivials(self):
-        return self.client.query(
+        trivials = self.client.query(
             {
                 "status_whiteboard": "trivial",
                 "status_whiteboard_type": "anywords",
@@ -168,9 +163,7 @@ class BugzillaGatherer(Gatherer):
             }
         )
         # print(" {0} trivial bugs retrieved from BZ".format(len(bugbz)))
-
-    def get_tickets(self):
-        result = self.get_easyfixes() + self.get_trivials()
+        result = easyfixes + trivials
         result.sort(key=lambda b: f"{b.component}--{b.id}")
         return result
 

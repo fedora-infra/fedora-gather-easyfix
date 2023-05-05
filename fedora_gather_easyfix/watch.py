@@ -3,6 +3,7 @@ from collections import defaultdict
 
 import mwclient
 
+from .cache import cache
 from .gatherers import GitHubGatherer, GitLabGatherer, PagureGatherer
 from .models import Project
 
@@ -34,6 +35,7 @@ class MediaWiki:
         return self.site.pages[title].text()
 
 
+@cache.cache_on_arguments()
 def gather_project_from_wiki(url):
     """Retrieve all the projects which have subscribed to this idea."""
     print("Getting repositories from MediaWiki")
