@@ -34,6 +34,16 @@ class Gatherer:
         response.raise_for_status()
         return response
 
+    def _get_labels(self, ticket):
+        return [label["name"] for label in ticket["labels"]]
+
+    def _filter_labels(self, ticket, project: Project):
+        return [
+            label
+            for label in self._get_labels(ticket)
+            if label.lower() != project.tag.lower().replace("+", " ")
+        ]
+
     def get_tickets(self, project: Project):
         ...
 
@@ -63,6 +73,9 @@ class GitHubGatherer(Gatherer):
             except KeyError:
                 break
 
+    def _get_labels(self, ticket):
+        return [label["name"] for label in ticket["labels"]]
+
     def get_tickets(self, project):
         url = (
             f"https://api.github.com/repos/{project.name}/issues"
@@ -71,11 +84,6 @@ class GitHubGatherer(Gatherer):
         response = self.http.get(url)
         response.raise_for_status()
         for ticket in self.all_pages(url):
-            labels = [
-                label["name"]
-                for label in ticket["labels"]
-                if label["name"].lower() != project.tag.lower()
-            ]
             yield Ticket(
                 id=ticket["number"],
                 title=ticket["title"],
@@ -84,17 +92,19 @@ class GitHubGatherer(Gatherer):
                 assignees=ticket["assignees"],
                 created_at=ticket["created_at"],
                 updated_at=ticket["updated_at"],
-                labels=labels,
+                labels=self._filter_labels(ticket, project),
             )
 
 
 class PagureGatherer(Gatherer):
+    def _get_labels(self, ticket):
+        return ticket["tags"]
+
     def get_tickets(self, project):
         url = f"https://pagure.io/api/0/{project.name}/issues?status=Open&tags={project.tag}"
         response = self._api_get(url)
         for ticket in response.json()["issues"]:
             assignees = [ticket["assignee"]["name"]] if ticket["assignee"] is not None else []
-            labels = [tag for tag in ticket["tags"] if tag.lower() != project.tag.lower()]
             yield Ticket(
                 id=ticket["id"],
                 title=ticket["title"],
@@ -102,7 +112,7 @@ class PagureGatherer(Gatherer):
                 status=ticket["status"],
                 created_at=datetime.datetime.utcfromtimestamp(int(ticket["date_created"])),
                 updated_at=datetime.datetime.utcfromtimestamp(int(ticket["last_updated"])),
-                labels=labels,
+                labels=self._filter_labels(ticket, project),
                 assignees=assignees,
             )
 

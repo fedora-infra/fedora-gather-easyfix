@@ -3,7 +3,7 @@ output = "output"
 # template = "/etc/fedora-gather-easyfix/template.html"
 template = "fedora_gather_easyfix/template.html"
 # repo_source = "wiki"
-# wiki_url = "fedoraproject.org/w/"
+# wiki_url = "fedoraproject.org"
 repo_source = "file"
 repo_list = "repos.txt"
 

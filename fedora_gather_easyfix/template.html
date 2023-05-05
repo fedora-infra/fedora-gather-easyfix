@@ -26,6 +26,7 @@
             <div class="container">
                 <div class="row">
                     <div class="col-8">
+
                         <div class="alert alert-info mb-4">
                             <p>
                                 There are a number of projects within Fedora which are looking
@@ -39,15 +40,18 @@
                                 information.
                             </p>
                         </div>
+
                         <ul class="nav nav-tabs" role="tablist">
                             <li class="nav-item">
-                                <a class="nav-link active" role="tab" data-toggle="tab" aria-controls="tab-repos" href="#tab-repos" aria-selected="true">Fedora pagure and github projects</a>
+                                <a class="nav-link active" role="tab" data-toggle="tab" aria-controls="tab-repos" href="#tab-repos" aria-selected="true">Repositories</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" role="tab" data-toggle="tab" aria-controls="tab-bugzilla" href="#tab-bugzilla" aria-selected="false">Bugzilla</a>
                             </li>
                         </ul>
                         <div class="tab-content px-1">
+
+                            <!-- Repositories -->
                             <div class="tab-pane fade show active" role="tabpanel" id="tab-repos">
                                 {% for group, projects in project_groups.items() %}
                                 {% if group %}
@@ -65,7 +69,7 @@
                                             <a href="{{ project.url }}">{{ project.repo_name }}</a>
                                             <a class="anchor-link" href="#{{ project.name }}"><i class="fa fa-link"></i></a>
                                         </h3>
-                                        <h6 class="card-subtitle mb-2 text-muted">
+                                        <h6 class="card-subtitle text-muted">
                                             To get started contact <a href="mailto:{{ project.email }}">{{ project.owner }}</a>
                                         </h6>
                                     </div>
@@ -150,11 +154,13 @@
                                 {% endfor %}
                                 <p> Total: {{bzbugs_num}} bugs found </p>
                             </div>
+
                         </div>
                     </div>
-                    <!-- start sidebar -->
+
+                    <!-- Sidebar -->
                     <div class="col-4" id="sidebar">
-                        <h3>Project list</h3>
+                        <h3>Repositories</h3>
                         <ul class="pl-3">
                             {% for group, projects in project_groups.items() %}
                             {% if group %}
