@@ -50,7 +50,7 @@ def gather_project_from_wiki(url):
                 name=name,
                 site=site,
                 tag=match.group(2),
-                owner=match.group(3),
+                owner=match.group(3).strip(),
             )
             projects.append(project)
     return projects
