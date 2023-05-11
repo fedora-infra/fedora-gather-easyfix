@@ -23,11 +23,11 @@ class Project:
             return f"https://gitlab.com/{self.name}/"
 
     @property
-    def email(self):
+    def href(self):
         if "@" in self.owner:
-            return self.owner
+            return f"mailto:{self.owner}"
         else:
-            return f"{self.owner}@fedoraproject.org"
+            return f"https://accounts.fedoraproject.org/user/{self.owner}/"
 
     @property
     def group(self):
