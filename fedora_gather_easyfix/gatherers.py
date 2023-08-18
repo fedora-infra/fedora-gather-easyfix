@@ -88,7 +88,7 @@ class GitHubGatherer(Gatherer):
                 url=ticket["html_url"],
                 status=ticket["state"],
                 body=ticket["body"],
-                assignees=ticket["assignees"],
+                assignees=[a["login"] for a in ticket["assignees"]],
                 created_at=datetime.fromisoformat(ticket["created_at"]),
                 updated_at=datetime.fromisoformat(ticket["updated_at"]),
                 labels=self._filter_labels(ticket, project),
