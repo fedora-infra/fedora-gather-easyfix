@@ -41,38 +41,39 @@ def gather_project_from_wiki(url):
     print("Getting repositories from MediaWiki")
     wiki = MediaWiki(url)
     page = wiki.get_pagesource("Easyfix")
-    projects = []
+    projects: dict[str, Project] = {}
     for row in page.split("\n"):
         match = re.search(r" \* ([^ ]*) ([^ ]*)( [^ ]*)?", row)
-        if match:
-            site, name = match.group(1).split(":", 1)
-            project = Project(
+        if not match:
+            continue
+        site, name = match.group(1).split(":", 1)
+        if name not in projects:
+            projects[name] = Project(
                 name=name,
                 site=site,
-                tag=match.group(2),
                 owner=match.group(3).strip(),
             )
-            projects.append(project)
-    return projects
+        projects[name].ticket_tags.add(match.group(2))
+    return list(projects.values())
 
 
 def gather_project_from_file(filename):
     """Retrieve all the projects which have subscribed to this idea."""
-    projects = []
+    projects: dict[str, Project] = {}
     with open(filename) as fh:
         for line in fh:
             match = re.search("^([^ ]*) ([^ ]*)( [^ ]*)?$", line)
             if match is None:
                 continue
             site, name = match.group(1).split(":", 1)
-            project = Project(
-                name=name,
-                site=site,
-                tag=match.group(2),
-                owner=match.group(3).strip(),
-            )
-            projects.append(project)
-    return projects
+            if name not in projects:
+                projects[name] = Project(
+                    name=name,
+                    site=site,
+                    owner=match.group(3).strip(),
+                )
+            projects[name].ticket_tags.add(match.group(2))
+    return list(projects.values())
 
 
 def gather_projects(config):
@@ -85,26 +86,19 @@ def gather_projects(config):
 
     gh_gatherer = GitHubGatherer(config)
 
-    _gathered = set()
     for project in projects:
-        if project.name in _gathered:
-            continue
         if project.site == "github" and "/" not in project.name:
             # it's an org, resolve
             print(f"Gathering projects in {project.name}")
             for repo_name in gh_gatherer.get_projects_in_organization(project.name):
-                if repo_name in _gathered:
-                    continue
                 yield Project(
                     name=repo_name,
                     site=project.site,
-                    tag=project.tag,
+                    ticket_tags=project.ticket_tags,
                     owner=project.owner,
                 )
-                _gathered.add(repo_name)
         else:
             yield project
-        _gathered.add(project.name)
 
 
 def get_projects(config):

@@ -9,7 +9,7 @@ class Project:
     name: str
     site: str
     owner: str
-    tag: str
+    ticket_tags: set[str] = field(default_factory=set)
     tickets: list["Ticket"] = field(default_factory=list)
     workflows: list["Workflow"] = field(default_factory=list)
     description: str | None = None

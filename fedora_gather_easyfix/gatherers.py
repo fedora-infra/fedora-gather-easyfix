@@ -38,11 +38,8 @@ class Gatherer:
         return [label["name"] for label in ticket["labels"]]
 
     def _filter_labels(self, ticket, project: Project):
-        return [
-            label
-            for label in self._get_labels(ticket)
-            if label.lower() != project.tag.lower().replace("+", " ")
-        ]
+        ticket_tags = [t.lower().replace("+", " ") for t in project.ticket_tags]
+        return [label for label in self._get_labels(ticket) if label.lower() not in ticket_tags]
 
     def get_tickets(self, project: Project):
         ...
@@ -96,19 +93,20 @@ class GitHubGatherer(Gatherer):
         return [label["name"] for label in ticket["labels"]]
 
     def get_tickets(self, project: Project):
-        url = f"/repos/{project.name}/issues" f"?labels={project.tag}&state=open"
-        for ticket in self.all_pages(url):
-            yield Ticket(
-                id=ticket["number"],
-                title=ticket["title"],
-                url=ticket["html_url"],
-                status=ticket["state"],
-                body=ticket["body"],
-                assignees=[a["login"] for a in ticket["assignees"]],
-                created_at=datetime.fromisoformat(ticket["created_at"]),
-                updated_at=datetime.fromisoformat(ticket["updated_at"]),
-                labels=self._filter_labels(ticket, project),
-            )
+        for tag in project.ticket_tags:
+            url = f"/repos/{project.name}/issues" f"?labels={tag}&state=open"
+            for ticket in self.all_pages(url):
+                yield Ticket(
+                    id=ticket["number"],
+                    title=ticket["title"],
+                    url=ticket["html_url"],
+                    status=ticket["state"],
+                    body=ticket["body"],
+                    assignees=[a["login"] for a in ticket["assignees"]],
+                    created_at=datetime.fromisoformat(ticket["created_at"]),
+                    updated_at=datetime.fromisoformat(ticket["updated_at"]),
+                    labels=self._filter_labels(ticket, project),
+                )
 
     def get_workflows(self, project: Project):
         repo_response = self._api_get(f"/repos/{project.name}")
@@ -142,36 +140,40 @@ class PagureGatherer(Gatherer):
         return ticket["tags"]
 
     def get_tickets(self, project):
-        url = f"https://pagure.io/api/0/{project.name}/issues?status=Open&tags={project.tag}"
-        response = self._api_get(url)
-        for ticket in response.json()["issues"]:
-            assignees = [ticket["assignee"]["name"]] if ticket["assignee"] is not None else []
-            yield Ticket(
-                id=ticket["id"],
-                title=ticket["title"],
-                url=f"https://pagure.io/{project.name}/issue/{ticket['id']}",
-                status=ticket["status"],
-                body=ticket["content"],
-                created_at=datetime.fromtimestamp(int(ticket["date_created"]), tz=UTC),
-                updated_at=datetime.fromtimestamp(int(ticket["last_updated"]), tz=UTC),
-                labels=self._filter_labels(ticket, project),
-                assignees=assignees,
-            )
+        for tag in project.ticket_tags:
+            url = f"https://pagure.io/api/0/{project.name}/issues?status=Open&tags={tag}"
+            response = self._api_get(url)
+            for ticket in response.json()["issues"]:
+                assignees = [ticket["assignee"]["name"]] if ticket["assignee"] is not None else []
+                yield Ticket(
+                    id=ticket["id"],
+                    title=ticket["title"],
+                    url=f"https://pagure.io/{project.name}/issue/{ticket['id']}",
+                    status=ticket["status"],
+                    body=ticket["content"],
+                    created_at=datetime.fromtimestamp(int(ticket["date_created"]), tz=UTC),
+                    updated_at=datetime.fromtimestamp(int(ticket["last_updated"]), tz=UTC),
+                    labels=self._filter_labels(ticket, project),
+                    assignees=assignees,
+                )
 
 
 class GitLabGatherer(Gatherer):
     def get_tickets(self, project):
         # https://docs.gitlab.com/ee/api/issues.html#list-project-issues
         quoted_name = quote(project.name, safe="")
-        url = f"https://gitlab.com/api/v4/projects/{quoted_name}/issues?state=opened&labels={project.tag}"
-        response = self._api_get(url)
-        for ticket in response.json():
-            yield Ticket(
-                id=ticket["id"],
-                title=ticket["title"],
-                url=ticket["web_url"],
-                status=ticket["state"],
+        for tag in project.ticket_tags:
+            url = (
+                f"https://gitlab.com/api/v4/projects/{quoted_name}/issues?state=opened&labels={tag}"
             )
+            response = self._api_get(url)
+            for ticket in response.json():
+                yield Ticket(
+                    id=ticket["id"],
+                    title=ticket["title"],
+                    url=ticket["web_url"],
+                    status=ticket["state"],
+                )
 
 
 class BugzillaGatherer(Gatherer):
