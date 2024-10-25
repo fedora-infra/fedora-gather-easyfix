@@ -85,19 +85,26 @@ def gather_projects(config):
 
     gh_gatherer = GitHubGatherer(config)
 
+    _gathered = set()
     for project in projects:
+        if project.name in _gathered:
+            continue
         if project.site == "github" and "/" not in project.name:
             # it's an org, resolve
             print(f"Gathering projects in {project.name}")
             for repo_name in gh_gatherer.get_projects_in_organization(project.name):
+                if repo_name in _gathered:
+                    continue
                 yield Project(
                     name=repo_name,
                     site=project.site,
                     tag=project.tag,
                     owner=project.owner,
                 )
+                _gathered.add(repo_name)
         else:
             yield project
+        _gathered.add(project.name)
 
 
 def get_projects(config):
