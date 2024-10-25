@@ -10,7 +10,8 @@ class Project:
     site: str
     owner: str
     tag: str
-    tickets: list[str] = field(default_factory=list)
+    tickets: list["Ticket"] = field(default_factory=list)
+    workflows: list["Workflow"] = field(default_factory=list)
     description: str | None = None
 
     @property
@@ -65,3 +66,12 @@ class Ticket:
     @property
     def is_very_old(self):
         return self.updated_at < (datetime.now(tz=UTC) - timedelta(days=365 * 3))
+
+
+@dataclass
+class Workflow:
+    """Representation of a workflow"""
+
+    name: str
+    html_url: str
+    badge_url: str

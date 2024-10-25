@@ -2,8 +2,9 @@ import argparse
 import logging
 import tomllib
 
+# import vcr
 from .cache import cache
-from .output import generate_output
+from .output import Generator
 from .watch import get_projects
 
 
@@ -27,17 +28,17 @@ def main():
     # logger.setLevel(logging.DEBUG)
 
     cache.configure(**config["cache"])
+
+    # with vcr.use_cassette("cassette.yml"):
+    #     project_groups = get_projects(config)
     project_groups = get_projects(config)
-    # Filter out groups where no project has a ticket
-    project_groups = {
-        groupname: projects
-        for groupname, projects in project_groups.items()
-        if sum(len(p.tickets) for p in projects) > 0
-    }
 
     # print("Gathering Bugzilla tickets")
     # bz_gatherer = BugzillaGatherer(config)
     # bz_components = bz_gatherer.get_components()
 
     # generate_output(config, project_groups, bz_components)
-    generate_output(config, project_groups, {})
+    generator = Generator(config)
+    generator.copy_static()
+    generator.generate_output(project_groups, {})
+    generator.generate_ci_output(project_groups)

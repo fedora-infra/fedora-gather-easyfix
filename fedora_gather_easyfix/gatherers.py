@@ -20,7 +20,7 @@ import requests
 from bugzilla.rhbugzilla import RHBugzilla
 
 from .cache import cache
-from .models import Project, Ticket
+from .models import Project, Ticket, Workflow
 
 
 class Gatherer:
@@ -47,8 +47,17 @@ class Gatherer:
     def get_tickets(self, project: Project):
         ...
 
+    def get_workflows(self, project: Project):
+        return []
+
 
 class GitHubGatherer(Gatherer):
+    BASE_URL = "https://api.github.com"
+    SKIP_WORKFLOWS = [
+        "Dependabot Updates",
+        "Apply labels when deployed",
+    ]
+
     def __init__(self, config):
         super().__init__(config)
         if "username" in config.get("github", {}) and "api_key" in config.get("github", {}):
@@ -57,30 +66,37 @@ class GitHubGatherer(Gatherer):
             auth = None
         self.http.auth = auth
 
+    def _api_get(self, sub_url):
+        url = f"{self.BASE_URL}{sub_url}"
+        return super()._api_get(url)
+
     def get_projects_in_organization(self, org_name):
-        url = f"https://api.github.com/orgs/{org_name}/repos?sort=full_name"
+        url = f"/orgs/{org_name}/repos?sort=full_name"
         for repo in self.all_pages(url):
             if repo["archived"]:
                 continue
             yield repo["full_name"]
 
-    def all_pages(self, url):
+    def all_pages(self, url, key=None):
         while True:
             response = self._api_get(url)
-            yield from response.json()
+            response.raise_for_status()
+            response_json = response.json()
+            if key is not None:
+                yield from response_json[key]
+            else:
+                yield from response_json
             try:
                 url = response.links["next"]["url"]
+                url = url[len(self.BASE_URL) :]
             except KeyError:
                 break
 
     def _get_labels(self, ticket):
         return [label["name"] for label in ticket["labels"]]
 
-    def get_tickets(self, project):
-        url = (
-            f"https://api.github.com/repos/{project.name}/issues"
-            f"?labels={project.tag}&state=open"
-        )
+    def get_tickets(self, project: Project):
+        url = f"/repos/{project.name}/issues" f"?labels={project.tag}&state=open"
         for ticket in self.all_pages(url):
             yield Ticket(
                 id=ticket["number"],
@@ -92,6 +108,32 @@ class GitHubGatherer(Gatherer):
                 created_at=datetime.fromisoformat(ticket["created_at"]),
                 updated_at=datetime.fromisoformat(ticket["updated_at"]),
                 labels=self._filter_labels(ticket, project),
+            )
+
+    def get_workflows(self, project: Project):
+        repo_response = self._api_get(f"/repos/{project.name}")
+        repo_response.raise_for_status()
+        repo = repo_response.json()
+        url = f"/repos/{project.name}/actions/workflows"
+        for workflow in self.all_pages(url, "workflows"):
+            if workflow["state"] != "active":
+                continue
+            if workflow["name"] in self.SKIP_WORKFLOWS:
+                continue
+            if workflow["path"].startswith(".github"):
+                workflow_filename = workflow["path"].split("/")[-1]
+                # Better badge URL
+                workflow[
+                    "badge_url"
+                ] = f"https://github.com/{project.name}/actions/workflows/{workflow_filename}/badge.svg?branch={repo['default_branch']}"
+                # Better HTML URL
+                workflow[
+                    "html_url"
+                ] = f"https://github.com/{project.name}/actions/workflows/{workflow_filename}"
+            yield Workflow(
+                name=workflow["name"],
+                html_url=workflow["html_url"],
+                badge_url=workflow["badge_url"],
             )
 
 

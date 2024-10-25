@@ -4,3 +4,4 @@ dist/
 *.pyc
 config.toml
 cache.dbm*
+cassette.yml

@@ -111,6 +111,8 @@ def get_projects(config):
         print(f"Gathering tickets for {project.name}")
         if project.site == "github":
             project.tickets = list(gh_gatherer.get_tickets(project))
+            print(f"Gathering workflows for {project.name}")
+            project.workflows = list(gh_gatherer.get_workflows(project))
         elif project.site == "pagure.io":
             project.tickets = list(p_gatherer.get_tickets(project))
         elif project.site == "gitlab.com":
